@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>NEXUS // PUBG Underground</title>
+<meta name="description" content="PUBG Mobile o'yinchilari uchun yashirin platforma — akkauntlar, UC, turnirlar, giveaway." />
+<meta property="og:title" content="NEXUS // PUBG Underground" />
+<meta property="og:description" content="Elita PUBG Mobile platforma — akkauntlar, UC, turnirlar, sovg'alar." />
+<meta property="og:type" content="website" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root{
+    --ink:#06030F; --void:#0A0518;
+    --violet:#9D4EDD; --magenta:#FF2EC4; --cyan:#00E5FF;
+    --lime:#C6FF00; --gold:#FFD166;
+  }
+  *{ -webkit-tap-highlight-color: transparent; }
+  html, body{ background: var(--ink); color: #EDE9F8; font-family:'Rajdhani', sans-serif; overflow-x:hidden; }
+  body{
+    background:
+      radial-gradient(1200px 800px at 80% -10%, rgba(157,78,221,0.18), transparent 60%),
+      radial-gradient(900px 700px at -10% 30%, rgba(0,229,255,0.10), transparent 60%),
+      radial-gradient(700px 500px at 50% 100%, rgba(255,46,196,0.10), transparent 60%),
+      var(--ink);
+    min-height:100vh;
+  }
+  .font-display{ font-family:'Orbitron', sans-serif; letter-spacing: 0.04em; }
+  .font-mono{ font-family:'JetBrains Mono', monospace; }
+
+  .grid-floor{
+    position: fixed; inset:0; pointer-events:none; z-index:0;
+    background-image:
+      linear-gradient(rgba(157,78,221,0.10) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,0.08) 1px, transparent 1px);
+    background-size: 60px 60px, 60px 60px;
+    mask-image: radial-gradient(ellipse at 50% 30%, black 30%, transparent 75%);
+    animation: gridShift 18s linear infinite;
+  }
+  @keyframes gridShift{ 0%{ background-position: 0 0, 0 0; } 100%{ background-position: 60px 60px, -60px -60px; } }
+
+  .mouse-glow{
+    position: fixed; pointer-events:none; z-index:1;
+    width: 480px; height: 480px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(157,78,221,0.22), rgba(0,229,255,0.08) 40%, transparent 70%);
+    filter: blur(20px); transform: translate(-50%, -50%);
+    transition: transform 0.08s linear; mix-blend-mode: screen;
+  }
+
+  .glass{
+    background: linear-gradient(180deg, rgba(20,12,40,0.55), rgba(8,4,20,0.65));
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    border: 1px solid rgba(157,78,221,0.20);
+  }
+  .glass-light{
+    background: linear-gradient(180deg, rgba(40,20,80,0.30), rgba(8,4,20,0.45));
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .holo{
+    position: relative; border-radius: 18px;
+    background: linear-gradient(135deg, rgba(20,10,40,0.7), rgba(10,5,25,0.85));
+    overflow: hidden;
+  }
+  .holo::before{
+    content:''; position: absolute; inset:-1px; border-radius:inherit; padding:1px;
+    background: linear-gradient(135deg, var(--violet), var(--cyan) 35%, transparent 60%, var(--magenta) 90%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude;
+    opacity: 0.6; pointer-events:none;
+  }
+  .holo::after{
+    content:''; position:absolute; inset:0;
+    background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.06) 50%, transparent 70%);
+    transform: translateX(-100%);
+    transition: transform 0.8s cubic-bezier(.2,.8,.2,1);
+    pointer-events:none;
+  }
+  .holo:hover::after{ transform: translateX(100%); }
+
+  .neon-violet{ color:#E2C9FF; text-shadow: 0 0 12px rgba(157,78,221,0.55), 0 0 30px rgba(157,78,221,0.25); }
+  .neon-cyan{ color:#BCF5FF; text-shadow: 0 0 12px rgba(0,229,255,0.55), 0 0 28px rgba(0,229,255,0.25); }
+  .neon-magenta{ color:#FFC6EB; text-shadow: 0 0 12px rgba(255,46,196,0.6), 0 0 28px rgba(255,46,196,0.25); }
+
+  .btn-primary{
+    position: relative;
+    background: linear-gradient(135deg, #6E2AB3, #C73CB7 60%, #00CFE8);
+    color:#fff; padding: 14px 28px; border-radius: 4px;
+    font-family:'Orbitron', sans-serif; font-weight: 700; letter-spacing: 0.18em;
+    text-transform: uppercase; font-size: 12px;
+    clip-path: polygon(8% 0, 100% 0, 100% 70%, 92% 100%, 0 100%, 0 30%);
+    transition: transform .25s ease, filter .25s ease, box-shadow .25s ease;
+    cursor: pointer; border: none;
+  }
+  .btn-primary:hover{ transform: translateY(-2px); filter: brightness(1.1); box-shadow: 0 14px 40px rgba(157,78,221,0.45), 0 0 30px rgba(0,229,255,0.3); }
+  .btn-ghost{
+    border: 1px solid rgba(157,78,221,0.5); color:#E2C9FF;
+    padding: 13px 26px; border-radius: 4px;
+    font-family:'Orbitron', sans-serif; font-weight: 600; letter-spacing: 0.18em;
+    text-transform: uppercase; font-size: 12px;
+    clip-path: polygon(8% 0, 100% 0, 100% 70%, 92% 100%, 0 100%, 0 30%);
+    background: rgba(20,10,40,0.5); transition: all .25s ease; cursor: pointer;
+  }
+  .btn-ghost:hover{ border-color: var(--cyan); color:#fff; background: rgba(0,229,255,0.08); box-shadow: 0 0 24px rgba(0,229,255,0.25); }
+
+  .cut-card{ clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 18px 100%, 0 calc(100% - 18px)); }
+
+  .scanline::before{
+    content:''; position:absolute; inset:0; pointer-events:none;
+    background: repeating-linear-gradient(0deg, transparent 0, transparent 3px, rgba(255,255,255,0.03) 3px, rgba(255,255,255,0.03) 4px);
+    border-radius: inherit;
+  }
+
+  .lift{ transition: transform .4s cubic-bezier(.2,.8,.2,1), box-shadow .4s ease; cursor: pointer; }
+  .lift:hover{ transform: translateY(-6px); box-shadow: 0 30px 60px rgba(157,78,221,0.25), 0 0 40px rgba(0,229,255,0.12); }
+
+  ::-webkit-scrollbar{ width: 10px; }
+  ::-webkit-scrollbar-track{ background: #06030F; }
+  ::-webkit-scrollbar-thumb{ background: linear-gradient(var(--violet), var(--cyan)); border-radius: 10px; }
+
+  .nav-link{ position:relative; }
+  .nav-link::after{
+    content:''; position:absolute; left: 0; bottom: -6px; height: 2px; width:0;
+    background: linear-gradient(90deg, var(--cyan), var(--magenta));
+    transition: width .35s ease;
+  }
+  .nav-link:hover::after, .nav-link.active::after{ width: 100%; }
+
+  .pulse-dot{ position: relative; width:10px; height:10px; border-radius:50%; background: var(--lime); box-shadow:0 0 12px var(--lime); }
+  .pulse-dot::after{
+    content:''; position:absolute; inset:-6px; border-radius:50%; border:2px solid var(--lime);
+    animation: pulse 1.6s ease-out infinite; opacity:0;
+  }
+  @keyframes pulse{ 0%{ transform: scale(0.6); opacity:0.8;} 100%{ transform: scale(1.6); opacity:0;} }
+
+  .toast{
+    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px);
+    padding: 14px 28px; border-radius: 6px;
+    background: linear-gradient(135deg, rgba(157,78,221,0.95), rgba(0,229,255,0.9));
+    color: white; font-family: 'Orbitron'; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; font-size: 12px;
+    box-shadow: 0 20px 60px rgba(157,78,221,0.5);
+    opacity: 0; transition: all .4s ease; z-index: 10000; pointer-events:none;
+  }
+  .toast.show{ opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .modal-bg{ background: rgba(6,3,15,0.88); backdrop-filter: blur(14px); }
+
+  @keyframes floaty{ 0%,100%{ transform: translateY(0);} 50%{ transform: translateY(-10px);} }
+  .floaty{ animation: floaty 5s ease-in-out infinite; }
+  .floaty-slow{ animation: floaty 7s ease-in-out infinite; }
+  @keyframes spin{ from{transform:rotateY(0);} to{transform:rotateY(360deg);} }
+
+  .trophy{
+    background: linear-gradient(135deg, #FFE89A, #FFD166 50%, #B07B00);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 0 12px rgba(255,209,102,0.6));
+  }
+
+  .sec-num{
+    font-family:'JetBrains Mono'; font-size: 11px; letter-spacing: 0.4em; color: var(--cyan);
+    border-left: 2px solid var(--cyan); padding-left: 12px;
+  }
+
+  #loader{
+    position: fixed; inset:0; background: #06030F; z-index: 9999;
+    display:flex; align-items:center; justify-content:center; flex-direction:column;
+    transition: opacity 0.6s ease, visibility 0.6s ease;
+  }
+  .loader-ring{
+    width: 80px; height: 80px; border-radius:50%;
+    border: 2px solid rgba(157,78,221,0.2);
+    border-top-color: var(--cyan); border-right-color: var(--magenta);
+    animation: ringSpin 1.1s linear infinite;
+  }
+  @keyframes ringSpin{ to{ transform: rotate(360deg);} }
+
+  .empty-state{
+    text-align: center; padding: 60px 20px;
+    color: #7C6FAE; font-family: 'JetBrains Mono'; font-size: 12px; letter-spacing: 0.3em;
+  }
+
+  .modal-scale{ animation: modalIn 0.4s cubic-bezier(.2,.8,.2,1); }
+  @keyframes modalIn{ from{ opacity:0; transform: scale(0.9) translateY(20px); } to{ opacity:1; transform: scale(1) translateY(0); } }
+
+  @media (max-width: 768px){ .mouse-glow{ display:none; } }
+</style>
+</head>
+<body>
+
+<div id="loader">
+  <div class="loader-ring"></div>
+  <div class="mt-6 font-mono text-xs tracking-[0.4em]" style="color:#00E5FF">TIZIM ISHGA TUSHIRILMOQDA//</div>
+</div>
+
+<div class="grid-floor"></div>
+<div class="mouse-glow" id="mouseGlow"></div>
+
+<!-- NAVBAR -->
+<nav class="fixed top-0 left-0 right-0 z-50 px-4 md:px-10 py-4">
+  <div class="max-w-7xl mx-auto glass rounded-md flex items-center justify-between px-4 md:px-6 py-3">
+    <div class="flex items-center gap-3">
+      <div class="relative w-9 h-9">
+        <div class="absolute inset-0 rounded-sm" style="background: conic-gradient(from 0deg, #9D4EDD, #00E5FF, #FF2EC4, #9D4EDD); animation: spin 6s linear infinite; filter: blur(2px);"></div>
+        <div class="absolute inset-[3px] bg-[#0A0518] rounded-sm flex items-center justify-center font-display font-black text-sm" style="color:#E2C9FF">N</div>
+      </div>
+      <div class="leading-none">
+        <div class="font-display font-black text-lg tracking-widest">NEXUS<span style="color:#00E5FF">//</span></div>
+        <div class="font-mono text-[9px] tracking-[0.3em]" style="color:#7C6FAE">PUBG UNDERGROUND</div>
+      </div>
+    </div>
+
+    <div class="hidden lg:flex items-center gap-7 font-display text-xs tracking-[0.2em] uppercase">
+      <a href="#home" class="nav-link active" data-nav="home">Bosh</a>
+      <a href="#accounts" class="nav-link" data-nav="accounts">Akkauntlar</a>
+      <a href="#uc" class="nav-link" data-nav="uc">UC Shop</a>
+      <a href="#tournaments" class="nav-link" data-nav="tournaments">Turnir</a>
+      <a href="#giveaways" class="nav-link" data-nav="giveaways">Giveaway</a>
+      <a href="#winners" class="nav-link" data-nav="winners">G'oliblar</a>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <div id="onlineBadge" class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-sm border border-white/5">
+        <div class="pulse-dot"></div>
+        <span class="font-mono text-[10px] tracking-widest" style="color:#C6FF00">0 ONLINE</span>
+      </div>
+      <button onclick="openTelegram()" class="btn-primary !py-2 !px-4 !text-[10px] hidden md:block">BOG'LANISH</button>
+      <a href="/admin" class="w-9 h-9 rounded-sm flex items-center justify-center border border-white/10 hover:border-neon-cyan transition" title="Admin kirish">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9D4EDD" stroke-width="2"><path d="M12 2L4 7v6c0 5 3.5 9 8 10 4.5-1 8-5 8-10V7l-8-5z"/></svg>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="home" class="relative min-h-screen flex items-center pt-32 pb-20 px-4 md:px-10">
+  <div class="absolute top-32 right-10 w-32 h-32 rounded-full opacity-30 blur-3xl floaty-slow" style="background: radial-gradient(circle, #00E5FF, transparent);"></div>
+  <div class="absolute bottom-40 left-10 w-40 h-40 rounded-full opacity-20 blur-3xl floaty" style="background: radial-gradient(circle, #FF2EC4, transparent);"></div>
+
+  <div class="relative max-w-7xl mx-auto w-full grid lg:grid-cols-12 gap-12 items-center z-10">
+    <div class="lg:col-span-7">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="h-[1px] w-16" style="background:linear-gradient(90deg, transparent, #00E5FF);"></div>
+        <div class="font-mono text-[10px] tracking-[0.5em]" style="color:#00E5FF">SYS.v4.7 // ASIA-NODE-03</div>
+      </div>
+
+      <h1 class="font-display font-black leading-[0.95] text-[44px] sm:text-[64px] lg:text-[88px] tracking-tight">
+        <span class="block neon-violet">JANGGOH</span>
+        <span class="block">ESHIGINI OCH</span>
+        <span class="block">
+          <span class="neon-cyan">UNDER</span><span class="neon-magenta">GROUND</span><span style="color:#FFD166">.</span>
+        </span>
+      </h1>
+
+      <p class="mt-8 max-w-xl text-lg" style="color:#B9B0D6">
+        <span style="color:#E2C9FF; font-weight:600;">Elita PUBG Mobile</span> o'yinchilari uchun yashirin platforma.
+        Konkuror akkauntlar, tezkor UC top-up, haftalik turnirlar va giveawaylar — bir joyda.
+      </p>
+
+      <div class="mt-10 flex flex-wrap gap-4">
+        <button onclick="scrollToSec('uc')" class="btn-primary">UC Vault'ga kirish</button>
+        <button onclick="scrollToSec('tournaments')" class="btn-ghost">Turnirga qo'shilish</button>
+      </div>
+
+      <div class="mt-14 grid grid-cols-3 gap-4 max-w-xl">
+        <div class="glass-light rounded-md p-4 cut-card">
+          <div class="font-display font-black text-3xl neon-cyan" id="statSold">0</div>
+          <div class="font-mono text-[10px] tracking-widest mt-1" style="color:#7C6FAE">SOTILGAN AKK.</div>
+        </div>
+        <div class="glass-light rounded-md p-4 cut-card">
+          <div class="font-display font-black text-3xl neon-magenta" id="statSafety">—</div>
+          <div class="font-mono text-[10px] tracking-widest mt-1" style="color:#7C6FAE">XAVFSIZ</div>
+        </div>
+        <div class="glass-light rounded-md p-4 cut-card">
+          <div class="font-display font-black text-3xl" style="color:#C6FF00">24/7</div>
+          <div class="font-mono text-[10px] tracking-widest mt-1" style="color:#7C6FAE">QO'LLAB-QUVVATLASH</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lg:col-span-5">
+      <div class="holo p-8 cut-card scanline relative text-center" style="background: linear-gradient(135deg, rgba(40,15,80,0.7), rgba(5,2,15,0.9));">
+        <div class="font-mono text-[10px] tracking-[0.4em] mb-4" style="color:#00E5FF">// UNDERGROUND VAULT</div>
+        <div class="text-6xl mb-4">🎮</div>
+        <h3 class="font-display font-black text-2xl mb-2">PREMIUM PLATFORMA</h3>
+        <p class="text-sm" style="color:#B9B0D6">Akkauntlar, UC, turnirlar — hammasi bir joyda. Admin orqali to'g'ridan-to'g'ri.</p>
+        <div class="mt-6 grid grid-cols-2 gap-3">
+          <div class="p-3 rounded-sm" style="background:rgba(0,229,255,0.1);">
+            <div class="font-display font-bold text-lg neon-cyan" id="statAccCount">0</div>
+            <div class="font-mono text-[9px] tracking-widest" style="color:#7C6FAE">AKKAUNT</div>
+          </div>
+          <div class="p-3 rounded-sm" style="background:rgba(255,46,196,0.1);">
+            <div class="font-display font-bold text-lg neon-magenta" id="statTourCount">0</div>
+            <div class="font-mono text-[9px] tracking-widest" style="color:#7C6FAE">TURNIR</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACCOUNTS -->
+<section id="accounts" class="relative py-24 px-4 md:px-10 z-10">
+  <div class="max-w-7xl mx-auto">
+    <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-14">
+      <div>
+        <div class="sec-num mb-4">01 / VAULT</div>
+        <h2 class="font-display font-black text-4xl md:text-6xl leading-none">
+          <span class="neon-violet">TOP</span><br>
+          <span style="color:#EDE9F8">AKKAUNTLAR</span>
+        </h2>
+        <p class="mt-4 text-sm" style="color:#B9B0D6;">Kartani bosing — batafsil ma'lumot ko'rish uchun.</p>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <button class="filter-btn px-4 py-2 font-mono text-[11px] tracking-widest rounded-sm border" data-filter="all" style="border-color:#00E5FF; color:#00E5FF; background:rgba(0,229,255,0.08);">HAMMASI</button>
+        <button class="filter-btn px-4 py-2 font-mono text-[11px] tracking-widest rounded-sm border" data-filter="mythic" style="border-color:rgba(157,78,221,0.4); color:#B9B0D6;">MYTHIC</button>
+        <button class="filter-btn px-4 py-2 font-mono text-[11px] tracking-widest rounded-sm border" data-filter="conqueror" style="border-color:rgba(157,78,221,0.4); color:#B9B0D6;">CONQUEROR</button>
+        <button class="filter-btn px-4 py-2 font-mono text-[11px] tracking-widest rounded-sm border" data-filter="ace" style="border-color:rgba(157,78,221,0.4); color:#B9B0D6;">ACE</button>
+      </div>
+    </div>
+
+    <div id="accountsGrid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+  </div>
+</section>
+
+<!-- UC -->
+<section id="uc" class="relative py-24 px-4 md:px-10 z-10 overflow-hidden">
+  <div class="max-w-7xl mx-auto">
+    <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-14">
+      <div>
+        <div class="sec-num mb-4">02 / UC DO'KON</div>
+        <h2 class="font-display font-black text-4xl md:text-6xl leading-none">
+          <span style="color:#FFD166;">UC</span>
+          <span class="neon-magenta">TOPUP</span><br>
+          <span style="color:#EDE9F8">TEZKOR DONATE</span>
+        </h2>
+        <p class="mt-4 max-w-md" style="color:#B9B0D6;">Bir necha daqiqada to'g'ridan-to'g'ri ID'ga.</p>
+      </div>
+      <div class="flex items-center gap-4">
+        <div class="w-16 h-16 rounded-full flex items-center justify-center font-display font-black text-[#3A2400]" style="background: radial-gradient(circle at 30% 30%, #FFE89A, #C9921A 60%, #6E4A00); border: 2px solid rgba(255,255,255,0.15); box-shadow: 0 0 24px rgba(255,209,102,0.5);">UC</div>
+        <div>
+          <div class="font-mono text-[10px] tracking-widest" style="color:#7C6FAE">JORIY KURS</div>
+          <div class="font-display font-bold text-lg" style="color:#FFD166;" id="ucRate">1 USD ≈ 12,500 so'm</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="ucGrid" class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5"></div>
+  </div>
+</section>
+
+<!-- TOURNAMENTS -->
+<section id="tournaments" class="relative py-24 px-4 md:px-10 z-10">
+  <div class="max-w-7xl mx-auto">
+    <div class="text-center mb-14">
+      <div class="sec-num inline-block mb-4 text-left">03 / TURNIR ARENA</div>
+      <h2 class="font-display font-black text-4xl md:text-6xl leading-none">
+        <span class="neon-cyan">PUBG</span> <span style="color:#EDE9F8;">TURNIRLARI</span><br>
+        <span class="neon-magenta">PUL MUKOFOTI BILAN</span>
+      </h2>
+    </div>
+
+    <div id="tournamentGrid" class="grid lg:grid-cols-3 gap-6 mb-12"></div>
+
+    <div class="grid lg:grid-cols-2 gap-6">
+      <div class="holo cut-card p-6 scanline relative">
+        <div class="flex items-center justify-between mb-5">
+          <div>
+            <div class="font-mono text-[10px] tracking-[0.4em]" style="color:#00E5FF;">// LEADERBOARD</div>
+            <div class="font-display font-bold text-2xl mt-1">TOP O'YINCHILAR</div>
+          </div>
+          <span class="font-mono text-[10px] tracking-widest px-2 py-1 rounded-sm" style="background: rgba(198,255,0,0.1); color:#C6FF00;">LIVE</span>
+        </div>
+        <div class="space-y-3" id="leaderboard"></div>
+      </div>
+
+      <div class="holo cut-card p-6 scanline relative">
+        <div class="flex items-center justify-between mb-5">
+          <div>
+            <div class="font-mono text-[10px] tracking-[0.4em]" style="color:#FF2EC4;">// JADVAL</div>
+            <div class="font-display font-bold text-2xl mt-1">YAQIN O'YINLAR</div>
+          </div>
+          <span class="font-mono text-[10px] tracking-widest" style="color:#7C6FAE;">UTC+5</span>
+        </div>
+        <div class="space-y-3" id="matchSchedule"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GIVEAWAYS -->
+<section id="giveaways" class="relative py-24 px-4 md:px-10 z-10">
+  <div class="max-w-7xl mx-auto">
+    <div class="text-center mb-16">
+      <div class="sec-num inline-block mb-4 text-left">04 / GIVEAWAY</div>
+      <h2 class="font-display font-black text-4xl md:text-6xl leading-none">
+        <span class="trophy">★</span>
+        <span class="neon-cyan">HAFTALIK</span> <span style="color:#EDE9F8">/</span> <span class="neon-magenta">OYLIK</span><br>
+        <span style="color:#EDE9F8">SOVG'A ARENA</span>
+      </h2>
+    </div>
+
+    <div id="giveawayGrid" class="grid md:grid-cols-2 gap-8"></div>
+  </div>
+</section>
+
+<!-- WINNERS -->
+<section id="winners" class="relative py-24 px-4 md:px-10 z-10">
+  <div class="max-w-7xl mx-auto">
+    <div class="flex items-end justify-between mb-14">
+      <div>
+        <div class="sec-num mb-4">05 / G'OLIBLAR</div>
+        <h2 class="font-display font-black text-4xl md:text-6xl leading-none">
+          <span class="trophy">SHON-SHUHRAT</span><br>
+          <span style="color:#EDE9F8">XONASI</span>
+        </h2>
+      </div>
+    </div>
+
+    <div id="winnersGrid" class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5"></div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="relative py-24 px-4 md:px-10 z-10">
+  <div class="max-w-5xl mx-auto holo cut-card p-10 md:p-16 text-center scanline relative">
+    <h3 class="font-display font-black text-3xl md:text-5xl leading-tight">
+      <span style="color:#EDE9F8;">ADMIN HAR DOIM</span><br>
+      <span class="neon-cyan">SIZ BILAN.</span>
+    </h3>
+    <p class="mt-5 max-w-xl mx-auto" style="color:#B9B0D6;">Barcha to'lovlar Telegram orqali shaxsan amalga oshiriladi.</p>
+    <div class="mt-8 flex flex-wrap justify-center gap-4">
+      <button onclick="openTelegram()" class="btn-primary">Telegram'ni ochish</button>
+      <button onclick="scrollToSec('uc')" class="btn-ghost">Katalog'ga qaytish</button>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="relative pt-16 pb-10 px-4 md:px-10 border-t" style="border-color: rgba(157,78,221,0.15);">
+  <div class="max-w-7xl mx-auto grid md:grid-cols-4 gap-10">
+    <div class="md:col-span-2">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="relative w-9 h-9">
+          <div class="absolute inset-0 rounded-sm" style="background: conic-gradient(from 0deg, #9D4EDD, #00E5FF, #FF2EC4, #9D4EDD); filter: blur(2px);"></div>
+          <div class="absolute inset-[3px] bg-[#0A0518] rounded-sm flex items-center justify-center font-display font-black text-sm" style="color:#E2C9FF">N</div>
+        </div>
+        <div class="font-display font-black text-lg tracking-widest">NEXUS<span style="color:#00E5FF">//</span></div>
+      </div>
+      <p class="max-w-sm" style="color:#7C6FAE;">PUBG Mobile o'yinchilari uchun yashirin gaming markazi.</p>
+    </div>
+    <div>
+      <div class="font-mono text-[10px] tracking-[0.3em] mb-3" style="color:#00E5FF;">SAHIFALAR</div>
+      <ul class="space-y-2 font-display text-sm tracking-wider" style="color:#B9B0D6;">
+        <li><a href="#accounts" class="hover:text-white">Akkauntlar</a></li>
+        <li><a href="#uc" class="hover:text-white">UC Shop</a></li>
+        <li><a href="#tournaments" class="hover:text-white">Turnirlar</a></li>
+        <li><a href="#giveaways" class="hover:text-white">Giveaway</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="font-mono text-[10px] tracking-[0.3em] mb-3" style="color:#00E5FF;">ALOQA</div>
+      <ul class="space-y-2 font-display text-sm tracking-wider" style="color:#B9B0D6;">
+        <li><button onclick="openTelegram()" class="hover:text-white">Telegram</button></li>
+      </ul>
+    </div>
+  </div>
+  <div class="max-w-7xl mx-auto mt-12 pt-6 border-t flex flex-col md:flex-row justify-between items-center gap-3" style="border-color: rgba(157,78,221,0.15);">
+    <div class="font-mono text-[10px] tracking-widest" style="color:#7C6FAE;">© NEXUS // BARCHA KANALLAR SHIFRLANGAN</div>
+    <div class="font-mono text-[10px] tracking-widest" style="color:#7C6FAE;">BUILD 4.7.42</div>
+  </div>
+</footer>
+
+<!-- ACCOUNT MODAL -->
+<div id="accModal" class="hidden fixed inset-0 z-[100] modal-bg items-center justify-center p-4 overflow-y-auto">
+  <div id="accModalContent" class="modal-scale glass max-w-4xl w-full rounded-lg overflow-hidden my-8"></div>
+</div>
+
+<div id="toast" class="toast">Signal qabul qilindi</div>
+
+<script>
+const API = '';
+let allAccounts = [];
+
+async function loadAll() {
+  try {
+    const [accounts, uc, tournaments, giveaways, winners, leaderboard, matches, stats] = await Promise.all([
+      fetch('/api/accounts').then(r => r.json()),
+      fetch('/api/uc').then(r => r.json()),
+      fetch('/api/tournaments').then(r => r.json()),
+      fetch('/api/giveaways').then(r => r.json()),
+      fetch('/api/winners').then(r => r.json()),
+      fetch('/api/leaderboard').then(r => r.json()),
+      fetch('/api/matches').then(r => r.json()),
+      fetch('/api/stats').then(r => r.json())
+    ]);
+
+    allAccounts = accounts;
+    renderAccounts('all');
+    renderUC(uc);
+    renderTournaments(tournaments);
+    renderGiveaways(giveaways);
+    renderWinners(winners);
+    renderLeaderboard(leaderboard);
+    renderMatches(matches);
+    renderStats(stats, accounts.length, tournaments.length);
+  } catch (e) {
+    console.error('Load xato:', e);
+  }
+}
+
+function emptyState(text) {
+  return `<div class="empty-state col-span-full">// ${text} //</div>`;
+}
+
+function renderStats(stats, accCount, tourCount) {
+  document.getElementById('statSold').textContent = stats.sold_accounts || '0';
+  document.getElementById('statSafety').textContent = stats.safety_percent || '—';
+  document.getElementById('statAccCount').textContent = accCount;
+  document.getElementById('statTourCount').textContent = tourCount;
+
+  const online = stats.online_users || '0';
+  document.getElementById('onlineBadge').querySelector('span').textContent = online + ' ONLINE';
+
+  const rate = stats.uzs_rate || '12500';
+  document.getElementById('ucRate').textContent = `1 USD ≈ ${Number(rate).toLocaleString('ru-RU').replace(/,/g,' ')} so'm`;
+}
+
+function renderAccounts(filter = 'all') {
+  const grid = document.getElementById('accountsGrid');
+  const filtered = filter === 'all' ? allAccounts : allAccounts.filter(a => (a.tag || '').toLowerCase().includes(filter));
+  if (!filtered.length) {
+    grid.innerHTML = emptyState('AKKAUNTLAR HALI QO\'SHILMAGAN');
+    return;
+  }
+  grid.innerHTML = filtered.map((a, i) => `
+    <div class="holo cut-card p-5 lift scanline" onclick="openAccount(${a.id})">
+      <div class="flex items-center justify-between">
+        <div class="font-mono text-[10px] tracking-[0.3em]" style="color:#00E5FF;">// ${(a.tag || '').toUpperCase()}</div>
+        <div class="font-mono text-[10px]" style="color:#7C6FAE;">#${a.code || 'A'}-${a.id}</div>
+      </div>
+      <div class="mt-5 flex items-center gap-4">
+        <div class="relative w-20 h-20 rounded-md overflow-hidden flex items-center justify-center" style="background: linear-gradient(135deg, ${a.color1}, ${a.color2});">
+          <div class="font-display text-3xl font-black text-white relative z-10">${a.code || 'A'}</div>
+        </div>
+        <div class="flex-1">
+          <div class="font-display font-black text-xl">${a.title}</div>
+          <div class="text-xs" style="color:#B9B0D6;">${a.region || ''} • KD ${a.kd || '—'}</div>
+          <div class="mt-2 flex flex-wrap gap-1">
+            ${(a.tags || []).slice(0,2).map(t => `<span class="text-[9px] px-1.5 py-0.5 rounded-sm font-mono" style="background:rgba(157,78,221,0.15); color:#E2C9FF;">${t}</span>`).join('')}
+          </div>
+        </div>
+      </div>
+      <div class="mt-5 grid grid-cols-3 gap-2 text-center">
+        <div class="py-2 rounded-sm" style="background:rgba(157,78,221,0.1);">
+          <div class="font-display font-bold text-sm neon-violet">${a.level}</div>
+          <div class="font-mono text-[9px] tracking-widest" style="color:#7C6FAE">DARAJA</div>
+        </div>
+        <div class="py-2 rounded-sm" style="background:rgba(0,229,255,0.1);">
+          <div class="font-display font-bold text-sm neon-cyan">${a.mythics}</div>
+          <div class="font-mono text-[9px] tracking-widest" style="color:#7C6FAE">MYTHIC</div>
+        </div>
+        <div class="py-2 rounded-sm" style="background:rgba(198,255,0,0.08);">
+          <div class="font-display font-bold text-sm" style="color:#C6FF00;">${a.tier || '—'}</div>
+          <div class="font-mono text-[9px] tracking-widest" style="color:#7C6FAE">TIER</div>
+        </div>
+      </div>
+      <div class="mt-5 flex items-center justify-between pt-4 border-t" style="border-color: rgba(157,78,221,0.2);">
+        <div>
+          <div class="font-mono text-[10px] tracking-widest" style="color:#7C6FAE;">NARX</div>
+          <div class="font-display font-black text-xl"><span style="color:#FFD166;">$</span>${Number(a.price).toLocaleString()}</div>
+        </div>
+        <div class="flex items-center gap-2 px-3 py-1.5 rounded-sm font-mono text-[10px] tracking-widest" style="background:rgba(0,229,255,0.1); color:#00E5FF; border:1px solid rgba(0,229,255,0.3);">BATAFSIL ›</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('.filter-btn').forEach(b => {
+      b.style.borderColor = 'rgba(157,78,221,0.4)';
+      b.style.color = '#B9B0D6';
+      b.style.background = 'transparent';
+    });
+    btn.style.borderColor = '#00E5FF';
+    btn.style.color = '#00E5FF';
+    btn.style.background = 'rgba(0,229,255,0.08)';
+    renderAccounts(btn.dataset.filter);
+  };
+});
+
+function openAccount(id) {
+  const a = allAccounts.find(x => x.id === id);
+  if (!a) return;
+  const content = document.getElementById('accModalContent');
+  const skins = a.skins || [];
+  const stats = a.stats || {};
+  content.innerHTML = `
+    <div class="relative">
+      <button onclick="closeAccount()" class="absolute top-4 right-4 z-10 w-10 h-10 rounded-sm border border-white/20 flex items-center justify-center bg-black/50" style="color:#fff;">×</button>
+      ${a.video ? `
+        <div class="relative w-full aspect-video bg-black">
+          <iframe src="${a.video}" frameborder="0" allow="autoplay; encrypted-media; fullscreen" allowfullscreen class="w-full h-full"></iframe>
+        </div>
+      ` : `<div class="h-32" style="background: linear-gradient(135deg, ${a.color1}, ${a.color2});"></div>`}
+
+      <div class="p-6 md:p-8">
+        <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
+          <div>
+            <div class="font-mono text-[10px] tracking-[0.4em] mb-2" style="color:#00E5FF;">// AKKAUNT #${a.id}</div>
+            <h2 class="font-display font-black text-3xl md:text-4xl">${a.title}</h2>
+            <div class="mt-2 flex flex-wrap gap-2">
+              ${a.region ? `<span class="text-xs px-2 py-1 rounded-sm font-mono" style="background:rgba(157,78,221,0.15); color:#E2C9FF;">${a.region}</span>` : ''}
+              ${a.kd ? `<span class="text-xs px-2 py-1 rounded-sm font-mono" style="background:rgba(0,229,255,0.15); color:#BCF5FF;">KD ${a.kd}</span>` : ''}
+              ${a.tier ? `<span class="text-xs px-2 py-1 rounded-sm font-mono" style="background:rgba(198,255,0,0.1); color:#C6FF00;">TIER ${a.tier}</span>` : ''}
+            </div>
+          </div>
+          <div class="text-right">
+            <div class="font-mono text-[10px] tracking-widest" style="color:#7C6FAE;">NARX</div>
+            <div class="font-display font-black text-4xl"><span style="color:#FFD166;">$</span>${Number(a.price).toLocaleString()}</div>
+          </div>
+        </div>
+
+        ${a.description ? `<p class="text-base mb-6" style="color:#B9B0D6;">${a.description}</p>` : ''}
+
+        ${Object.keys(stats).length ? `
+          <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+            ${stats.wins ? `<div class="p-3 rounded-sm text-center" style="background:rgba(157,78,221,0.1);"><div class="font-display font-black text-xl neon-violet">${stats.wins}</div><div class="font-mono text-[9px] tracking-widest mt-1" style="color:#7C6FAE">G'ALABALAR</div></div>` : ''}
+            ${stats.kills ? `<div class="p-3 rounded-sm text-center" style="background:rgba(255,46,196,0.1);"><div class="font-display font-black text-xl neon-magenta">${stats.kills}</div><div class="font-mono text-[9px] tracking-widest mt-1" style="color:#7C6FAE">KILLS</div></div>` : ''}
+            ${stats.hsRate ? `<div class="p-3 rounded-sm text-center" style="background:rgba(0,229,255,0.1);"><div class="font-display font-black text-xl neon-cyan">${stats.hsRate}</div><div class="font-mono text-[9px] tracking-widest mt-1" style="color:#7C6FAE">HEADSHOT</div></div>` : ''}
+            ${stats.avgDmg ? `<div class="p-3 rounded-sm text-center" style="background:rgba(255,209,102,0.1);"><div class="font-display font-black text-xl" style="color:#FFD166;">${stats.avgDmg}</div><div class="font-mono text-[9px] tracking-widest mt-1" style="color:#7C6FAE">O'RT. DMG</div></div>` : ''}
+            ${stats.top10 ? `<div class="p-3 rounded-sm text-center" style="background:rgba(198,255,0,0.1);"><div class="font-display font-black text-xl" style="color:#C6FF00;">${stats.top10}</div><div class="font-mono text-[9px] tracking-widest mt-1" style="color:#7C6FAE">TOP 10</div></div>` : ''}
+          </div>
+        ` : ''}
+
+        ${skins.length ? `
+          <div class="mb-6">
+            <div class="font-mono text-[10px] tracking-[0.4em] mb-3" style="color:#00E5FF;">// ASOSIY SKINLAR</div>
+            <div class="grid sm:grid-cols-2 gap-2">
+              ${skins.map(s => `
+                <div class="flex items-center gap-3 p-3 rounded-sm" style="background:rgba(20,10,40,0.5); border:1px solid rgba(157,78,221,0.2);">
+                  <div class="text-2xl">${s.icon || '⚔️'}</div>
+                  <div class="flex-1">
+                    <div class="font-display font-bold text-sm">${s.name}</div>
+                    <div class="font-mono text-[9px] tracking-widest" style="color: ${s.rarity === 'Mythic' ? '#FFC6EB' : '#FFD166'};">${(s.rarity || '').toUpperCase()}</div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        ` : ''}
+
+        <div class="flex flex-col sm:flex-row gap-3">
+          <button onclick="openTelegram()" class="btn-primary flex-1">💬 Telegramda yozish</button>
+          <button onclick="openTelegram()" class="btn-ghost flex-1">⚡ Hozir sotib olish</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.getElementById('accModal').classList.remove('hidden');
+  document.getElementById('accModal').classList.add('flex');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeAccount() {
+  document.getElementById('accModal').classList.add('hidden');
+  document.getElementById('accModal').classList.remove('flex');
+  document.getElementById('accModalContent').innerHTML = '';
+  document.body.style.overflow = '';
+}
+
+document.getElementById('accModal').addEventListener('click', e => {
+  if (e.target.id === 'accModal') closeAccount();
+});
+
+function renderUC(packages) {
+  const grid = document.getElementById('ucGrid');
+  if (!packages.length) {
+    grid.innerHTML = emptyState('UC PAKETLARI HALI QO\'SHILMAGAN');
+    return;
+  }
+  const rate = 12500;
+  grid.innerHTML = packages.map(p => `
+    <div class="relative group cut-card lift">
+      <div class="holo p-5 scanline relative overflow-hidden">
+        <div class="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-2xl opacity-0 group-hover:opacity-60 transition duration-500" style="background:${p.glow};"></div>
+        <div class="flex items-center justify-between">
+          <span class="font-mono text-[10px] tracking-[0.3em] px-2 py-1 rounded-sm" style="background:rgba(255,255,255,0.04); color:${p.glow};">${p.tag || ''}</span>
+          <div class="w-10 h-10 rounded-full" style="background: radial-gradient(circle at 30% 30%, #FFE89A, #C9921A 60%, #6E4A00); box-shadow: 0 0 16px rgba(255,209,102,0.4);"></div>
+        </div>
+        <div class="mt-6">
+          <div class="font-display font-black text-5xl leading-none" style="color:#FFE89A;">${p.uc}</div>
+          <div class="font-display font-bold text-sm tracking-[0.3em] mt-1" style="color:#FFD166;">UC</div>
+        </div>
+        <div class="mt-6 pt-4 border-t" style="border-color: rgba(157,78,221,0.2);">
+          <div class="flex items-end justify-between">
+            <div>
+              <div class="font-mono text-[10px] tracking-widest" style="color:#7C6FAE;">USD</div>
+              <div class="font-display font-bold text-xl">$${p.usd}</div>
+            </div>
+            <div class="text-right">
+              <div class="font-mono text-[10px] tracking-widest" style="color:#7C6FAE;">SO'M</div>
+              <div class="font-display font-bold text-sm" style="color:#C6FF00;">${Math.round(p.usd * rate).toLocaleString('ru-RU').replace(/,/g,' ')}</div>
+            </div>
+          </div>
+        </div>
+        <button onclick="openTelegram()" class="btn-primary w-full mt-5 !py-2.5 !text-[10px]" style="clip-path:none; border-radius: 4px;">SOTIB OLISH</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderTournaments(list) {
+  const grid = document.getElementById('tournamentGrid');
+  if (!list.length) {
+    grid.innerHTML = emptyState('TURNIRLAR HALI E\'LON QILINMAGAN');
+    return;
+  }
+  grid.innerHTML = list.map(t => {
+    const pct = t.slots ? Math.round((t.filled / t.slots) * 100) : 0;
+    const endTs = t.ends_at ? new Date(t.ends_at).getTime() : 0;
+    return `
+      <div class="holo cut-card p-6 scanline relative overflow-hidden lift">
+        <div class="absolute -top-16 -right-16 w-48 h-48 rounded-full blur-3xl opacity-20" style="background:${t.color};"></div>
+        <div class="flex items-center justify-between mb-4">
+          <span class="font-mono text-[10px] tracking-[0.4em] px-3 py-1 rounded-sm" style="background: ${t.color}1A; color:${t.color}; border:1px solid ${t.color}55;">${t.tag || ''}</span>
+          <span class="font-mono text-[10px] tracking-widest px-2 py-1 rounded-sm" style="background:rgba(255,255,255,0.04); color:#B9B0D6;">${t.mode || ''}</span>
+        </div>
+        <h3 class="font-display font-black text-xl md:text-2xl leading-tight mb-2">${t.title}</h3>
+        <div class="text-xs mb-5" style="color:#7C6FAE;">${t.map || ''}</div>
+        <div class="p-4 rounded-sm mb-5" style="background: rgba(255,255,255,0.03); border:1px solid ${t.color}33;">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="font-mono text-[10px] tracking-widest" style="color:#7C6FAE;">MUKOFOT</div>
+              <div class="font-display font-black text-3xl trophy">★ ${t.prize || ''}</div>
+              ${t.prize_uzs ? `<div class="font-mono text-[10px] mt-1" style="color:#C6FF00;">${t.prize_uzs} so'm</div>` : ''}
+            </div>
+            <div class="text-right">
+              <div class="font-mono text-[10px] tracking-widest" style="color:#7C6FAE;">KIRISH</div>
+              <div class="font-display font-bold text-base" style="color:${t.entry === 'BEPUL' ? '#C6FF00' : '#FFD166'};">${t.entry || ''}</div>
+            </div>
+          </div>
+        </div>
+        ${t.slots ? `
+          <div class="mb-4">
+            <div class="flex items-center justify-between text-xs mb-2">
+              <span class="font-mono tracking-widest" style="color:#7C6FAE;">JOYLAR</span>
+              <span class="font-display font-bold" style="color:${t.color};">${t.filled}/${t.slots}</span>
+            </div>
+            <div class="w-full h-2 rounded-full overflow-hidden" style="background:rgba(255,255,255,0.05);">
+              <div class="h-full rounded-full" style="width:${pct}%; background:linear-gradient(90deg, ${t.color}, ${t.color}AA); box-shadow: 0 0 12px ${t.color};"></div>
+            </div>
+          </div>
+        ` : ''}
+        ${endTs ? `
+          <div>
+            <div class="font-mono text-[10px] tracking-widest mb-2" style="color:#7C6FAE;">BOSHLANISHIGA</div>
+            <div class="countdown grid grid-cols-4 gap-2" data-end="${endTs}">
+              <div class="text-center p-2 rounded-sm" style="background:rgba(0,0,0,0.4); border:1px solid ${t.color}33;"><div class="font-display font-black text-lg" data-unit="d" style="color:${t.color};">0</div><div class="font-mono text-[9px] tracking-widest" style="color:#7C6FAE;">KUN</div></div>
+              <div class="text-center p-2 rounded-sm" style="background:rgba(0,0,0,0.4); border:1px solid ${t.color}33;"><div class="font-display font-black text-lg" data-unit="h" style="color:${t.color};">0</div><div class="font-mono text-[9px] tracking-widest" style="color:#7C6FAE;">SOAT</div></div>
+              <div class="text-center p-2 rounded-sm" style="background:rgba(0,0,0,0.4); border:1px solid ${t.color}33;"><div class="font-display font-black text-lg" data-unit="m" style="color:${t.color};">0</div><div class="font-mono text-[9px] tracking-widest" style="color:#7C6FAE;">DAQ.</div></div>
+              <div class="text-center p-2 rounded-sm" style="background:rgba(0,0,0,0.4); border:1px solid ${t.color}33;"><div class="font-display font-black text-lg" data-unit="s" style="color:${t.color};">0</div><div class="font-mono text-[9px] tracking-widest" style="color:#7C6FAE;">SEK.</div></div>
+            </div>
+          </div>
+        ` : ''}
+        <button onclick="openTelegram()" class="btn-primary w-full mt-5">⚔️ Ro'yxatdan o'tish</button>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderGiveaways(list) {
+  const grid = document.getElementById('giveawayGrid');
+  if (!list.length) {
+    grid.innerHTML = emptyState('GIVEAWAY HALI E\'LON QILINMAGAN');
+    return;
+  }
+  grid.innerHTML = list.map(g => {
+    const endTs = g.ends_at ? new Date(g.ends_at).getTime() : 0;
+    return `
+      <div class="holo cut-card p-7 scanline relative overflow-hidden lift">
+        <div class="absolute -top-16 -right-16 w-48 h-48 rounded-full blur-3xl opacity-30" style="background:${g.color};"></div>
+        <div class="flex items-center justify-between">
+          <span class="font-mono text-[10px] tracking-[0.4em] px-3 py-1 rounded-sm" style="background: ${g.color}1A; color:${g.color}; border:1px solid ${g.color}55;">${g.tag || ''}</span>
+          <div class="flex items-center gap-1">
+            <div class="pulse-dot"></div>
+            <span class="font-mono text-[10px] tracking-widest" style="color:#C6FF00;">LIVE</span>
+          </div>
+        </div>
+        <h3 class="font-display font-black text-2xl md:text-3xl mt-5 leading-tight">${g.title}</h3>
+        ${g.sub ? `<p class="text-sm mt-2" style="color:#B9B0D6;">${g.sub}</p>` : ''}
+        <div class="mt-6 p-4 rounded-sm" style="background: rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.05);">
+          <div class="font-mono text-[10px] tracking-widest" style="color:#7C6FAE;">MUKOFOT</div>
+          <div class="font-display font-black text-3xl trophy mt-1">★ ${g.prize}</div>
+        </div>
+        ${endTs ? `
+          <div class="mt-5">
+            <div class="font-mono text-[10px] tracking-widest mb-2" style="color:#7C6FAE;">YAKUNLANISHIGA</div>
+            <div class="countdown grid grid-cols-4 gap-2" data-end="${endTs}">
+              <div class="text-center p-2 rounded-sm" style="background:rgba(0,0,0,0.4); border:1px solid ${g.color}33;"><div class="font-display font-black text-xl" data-unit="d" style="color:${g.color};">0</div><div class="font-mono text-[9px] tracking-widest" style="color:#7C6FAE;">KUN</div></div>
+              <div class="text-center p-2 rounded-sm" style="background:rgba(0,0,0,0.4); border:1px solid ${g.color}33;"><div class="font-display font-black text-xl" data-unit="h" style="color:${g.color};">0</div><div class="font-mono text-[9px] tracking-widest" style="color:#7C6FAE;">SOAT</div></div>
+              <div class="text-center p-2 rounded-sm" style="background:rgba(0,0,0,0.4); border:1px solid ${g.color}33;"><div class="font-display font-black text-xl" data-unit="m" style="color:${g.color};">0</div><div class="font-mono text-[9px] tracking-widest" style="color:#7C6FAE;">DAQ.</div></div>
+              <div class="text-center p-2 rounded-sm" style="background:rgba(0,0,0,0.4); border:1px solid ${g.color}33;"><div class="font-display font-black text-xl" data-unit="s" style="color:${g.color};">0</div><div class="font-mono text-[9px] tracking-widest" style="color:#7C6FAE;">SEK.</div></div>
+            </div>
+          </div>
+        ` : ''}
+        <button onclick="openTelegram()" class="btn-primary w-full mt-6">⚡ Ishtirok etish</button>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderWinners(list) {
+  const grid = document.getElementById('winnersGrid');
+  if (!list.length) {
+    grid.innerHTML = emptyState('G\'OLIBLAR HALI E\'LON QILINMAGAN');
+    return;
+  }
+  grid.innerHTML = list.map(w => `
+    <div class="holo cut-card p-5 lift text-center scanline relative overflow-hidden">
+      <div class="absolute top-0 left-0 right-0 h-[1px]" style="background: linear-gradient(90deg, transparent, #FFD166, transparent);"></div>
+      <div class="text-4xl trophy mb-2">★</div>
+      <div class="font-display font-black text-lg">${w.name}</div>
+      <div class="font-mono text-[10px] tracking-widest mt-1" style="color:#7C6FAE;">${w.date || ''}</div>
+      <div class="mt-4 inline-block px-3 py-1 rounded-sm font-mono text-xs tracking-widest" style="background:rgba(255,209,102,0.1); color:#FFD166; border:1px solid rgba(255,209,102,0.3);">${w.prize || ''}</div>
+    </div>
+  `).join('');
+}
+
+function renderLeaderboard(list) {
+  const el = document.getElementById('leaderboard');
+  if (!list.length) {
+    el.innerHTML = '<div class="empty-state">// LEADERBOARD BO\'SH //</div>';
+    return;
+  }
+  el.innerHTML = list.map(p => `
+    <div class="flex items-center gap-4 p-3 rounded-sm" style="background:rgba(20,10,40,0.5); border:1px solid rgba(157,78,221,0.15);">
+      <div class="w-10 h-10 rounded-sm flex items-center justify-center font-display font-black text-lg" style="background:linear-gradient(135deg, ${p.color}55, ${p.color}22); color:${p.color}; border:1px solid ${p.color}88;">${p.rank}</div>
+      <div class="flex-1">
+        <div class="font-display font-bold">${p.name}</div>
+        <div class="font-mono text-[10px] tracking-widest" style="color:#7C6FAE;">${p.team || ''}</div>
+      </div>
+      <div class="text-right">
+        <div class="font-display font-black" style="color:${p.color};">${Number(p.points).toLocaleString()}</div>
+        <div class="font-mono text-[9px] tracking-widest" style="color:#7C6FAE;">${p.kills} KILLS</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderMatches(list) {
+  const el = document.getElementById('matchSchedule');
+  if (!list.length) {
+    el.innerHTML = '<div class="empty-state">// JADVAL BO\'SH //</div>';
+    return;
+  }
+  el.innerHTML = list.map(m => `
+    <div class="p-4 rounded-sm" style="background:rgba(20,10,40,0.5); border:1px solid rgba(255,46,196,0.15);">
+      <div class="flex items-center justify-between mb-2">
+        <div class="font-mono text-[10px] tracking-widest" style="color:#7C6FAE;">${m.date_label || ''} · ${m.time_label || ''}</div>
+        ${m.live ? '<div class="flex items-center gap-1"><div class="pulse-dot" style="background:#FF2EC4; box-shadow:0 0 8px #FF2EC4;"></div><span class="font-mono text-[10px] tracking-widest" style="color:#FFC6EB;">LIVE</span></div>' : ''}
+      </div>
+      <div class="flex items-center justify-between gap-3">
+        <div class="flex-1 font-display font-bold text-sm">${m.team1}</div>
+        <div class="font-display font-black text-xs" style="color:#7C6FAE;">VS</div>
+        <div class="flex-1 font-display font-bold text-sm text-right">${m.team2}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function tickCountdowns() {
+  document.querySelectorAll('.countdown').forEach(c => {
+    const end = parseInt(c.dataset.end);
+    let diff = Math.max(0, Math.floor((end - Date.now()) / 1000));
+    const d = Math.floor(diff / 86400); diff %= 86400;
+    const h = Math.floor(diff / 3600); diff %= 3600;
+    const m = Math.floor(diff / 60);
+    const s = diff % 60;
+    const set = (u, v) => { const el = c.querySelector(`[data-unit="${u}"]`); if (el) el.textContent = String(v).padStart(2, '0'); };
+    set('d', d); set('h', h); set('m', m); set('s', s);
+  });
+}
+setInterval(tickCountdowns, 1000);
+
+function openTelegram() {
+  showToast('Telegram ochilmoqda…');
+  setTimeout(() => window.open('https://t.me/nexus_underground', '_blank'), 400);
+}
+
+function scrollToSec(id) {
+  document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+const mg = document.getElementById('mouseGlow');
+window.addEventListener('mousemove', e => {
+  mg.style.left = e.clientX + 'px';
+  mg.style.top = e.clientY + 'px';
+});
+
+const sections = ['home','accounts','uc','tournaments','giveaways','winners'];
+window.addEventListener('scroll', () => {
+  const y = window.scrollY + 200;
+  let active = sections[0];
+  for (const id of sections) {
+    const el = document.getElementById(id);
+    if (el && y >= el.offsetTop) active = id;
+  }
+  document.querySelectorAll('[data-nav]').forEach(a => {
+    a.classList.toggle('active', a.dataset.nav === active);
+  });
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && !document.getElementById('accModal').classList.contains('hidden')) closeAccount();
+});
+
+window.addEventListener('load', () => {
+  loadAll();
+  setTimeout(() => {
+    const l = document.getElementById('loader');
+    l.style.opacity = '0';
+    l.style.visibility = 'hidden';
+    setTimeout(() => l.remove(), 700);
+  }, 800);
+});
+</script>
+</body>
+</html>

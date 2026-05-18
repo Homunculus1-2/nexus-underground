@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>NEXUS // Admin Panel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root{ --ink:#06030F; --violet:#9D4EDD; --magenta:#FF2EC4; --cyan:#00E5FF; --lime:#C6FF00; --gold:#FFD166; }
+  html, body{ background: var(--ink); color:#EDE9F8; font-family:'Rajdhani', sans-serif; }
+  body{
+    background:
+      radial-gradient(1200px 800px at 80% -10%, rgba(157,78,221,0.18), transparent 60%),
+      radial-gradient(900px 700px at -10% 30%, rgba(0,229,255,0.10), transparent 60%),
+      var(--ink);
+    min-height:100vh;
+  }
+  .font-display{ font-family:'Orbitron', sans-serif; }
+  .font-mono{ font-family:'JetBrains Mono', monospace; }
+
+  .glass{ background: linear-gradient(180deg, rgba(20,12,40,0.55), rgba(8,4,20,0.65)); backdrop-filter: blur(18px); border: 1px solid rgba(157,78,221,0.20); }
+  .holo{ background: linear-gradient(135deg, rgba(20,10,40,0.7), rgba(10,5,25,0.85)); border: 1px solid rgba(157,78,221,0.25); border-radius: 12px; }
+  .neon-violet{ color:#E2C9FF; text-shadow: 0 0 12px rgba(157,78,221,0.55); }
+  .neon-cyan{ color:#BCF5FF; text-shadow: 0 0 12px rgba(0,229,255,0.55); }
+  .neon-magenta{ color:#FFC6EB; text-shadow: 0 0 12px rgba(255,46,196,0.6); }
+
+  .btn-primary{
+    background: linear-gradient(135deg, #6E2AB3, #C73CB7 60%, #00CFE8);
+    color:#fff; padding: 10px 20px; border-radius: 4px;
+    font-family:'Orbitron', sans-serif; font-weight: 700; letter-spacing: 0.15em;
+    text-transform: uppercase; font-size: 11px; cursor: pointer; border: none;
+    transition: all .2s ease;
+  }
+  .btn-primary:hover{ filter: brightness(1.1); box-shadow: 0 8px 24px rgba(157,78,221,0.4); }
+  .btn-primary:disabled{ opacity: 0.5; cursor: not-allowed; }
+  .btn-ghost{
+    border: 1px solid rgba(157,78,221,0.5); color:#E2C9FF;
+    padding: 9px 18px; border-radius: 4px;
+    font-family:'Orbitron', sans-serif; font-weight: 600; letter-spacing: 0.15em;
+    text-transform: uppercase; font-size: 11px; cursor: pointer;
+    background: rgba(20,10,40,0.5); transition: all .2s ease;
+  }
+  .btn-ghost:hover{ border-color: var(--cyan); color:#fff; background: rgba(0,229,255,0.08); }
+  .btn-danger{
+    border: 1px solid rgba(255,46,196,0.5); color:#FFC6EB;
+    padding: 6px 12px; border-radius: 4px;
+    font-family:'Orbitron', sans-serif; font-weight: 600; letter-spacing: 0.1em;
+    text-transform: uppercase; font-size: 10px; cursor: pointer;
+    background: rgba(40,10,30,0.5); transition: all .2s ease;
+  }
+  .btn-danger:hover{ background: rgba(255,46,196,0.15); border-color: #FF2EC4; }
+  .btn-edit{
+    border: 1px solid rgba(0,229,255,0.4); color:#BCF5FF;
+    padding: 6px 12px; border-radius: 4px;
+    font-family:'Orbitron', sans-serif; font-weight: 600; letter-spacing: 0.1em;
+    text-transform: uppercase; font-size: 10px; cursor: pointer;
+    background: rgba(10,30,40,0.5); transition: all .2s ease;
+  }
+  .btn-edit:hover{ background: rgba(0,229,255,0.1); border-color: #00E5FF; }
+
+  input, select, textarea {
+    width: 100%; padding: 10px 14px;
+    background: rgba(0,0,0,0.4); border: 1px solid rgba(157,78,221,0.3);
+    border-radius: 4px; color: #E2C9FF; font-family: 'Rajdhani'; font-size: 14px;
+    transition: border-color .2s;
+  }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--cyan); }
+  label { display: block; font-family: 'JetBrains Mono'; font-size: 10px; letter-spacing: 0.2em; color: #7C6FAE; margin-bottom: 6px; text-transform: uppercase; }
+
+  .tab{
+    padding: 10px 18px; font-family: 'Orbitron'; font-weight: 600; font-size: 11px;
+    letter-spacing: 0.2em; color: #7C6FAE; cursor: pointer; border-radius: 4px;
+    transition: all .2s; text-transform: uppercase; white-space: nowrap;
+  }
+  .tab:hover{ color: #E2C9FF; }
+  .tab.active{ color: #fff; background: linear-gradient(135deg, rgba(157,78,221,0.3), rgba(0,229,255,0.2)); border: 1px solid rgba(157,78,221,0.5); }
+
+  .row{
+    display: grid; gap: 12px; padding: 14px;
+    background: rgba(20,10,40,0.4); border-radius: 6px;
+    border: 1px solid rgba(157,78,221,0.15);
+    transition: border-color .2s;
+  }
+  .row:hover{ border-color: rgba(0,229,255,0.3); }
+
+  ::-webkit-scrollbar{ width: 10px; }
+  ::-webkit-scrollbar-track{ background: #06030F; }
+  ::-webkit-scrollbar-thumb{ background: linear-gradient(var(--violet), var(--cyan)); border-radius: 10px; }
+
+  .modal-bg{ background: rgba(6,3,15,0.92); backdrop-filter: blur(14px); }
+
+  .toast{
+    position: fixed; bottom: 30px; right: 30px;
+    padding: 14px 24px; border-radius: 6px;
+    background: linear-gradient(135deg, rgba(157,78,221,0.95), rgba(0,229,255,0.9));
+    color: white; font-family: 'Orbitron'; font-weight: 600; letter-spacing: 0.1em; font-size: 12px;
+    box-shadow: 0 20px 60px rgba(157,78,221,0.5);
+    opacity: 0; transform: translateY(20px); transition: all .3s; z-index: 10000;
+  }
+  .toast.show{ opacity: 1; transform: translateY(0); }
+  .toast.error{ background: linear-gradient(135deg, #C73CB7, #FF2EC4); }
+
+  @keyframes spin{ from{transform:rotateY(0);} to{transform:rotateY(360deg);} }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen" class="min-h-screen flex items-center justify-center p-4">
+  <div class="glass max-w-md w-full rounded-lg p-8">
+    <div class="flex items-center gap-3 mb-6">
+      <div class="relative w-10 h-10">
+        <div class="absolute inset-0 rounded-sm" style="background: conic-gradient(from 0deg, #FF2EC4, #9D4EDD, #00E5FF, #FF2EC4); animation: spin 6s linear infinite; filter: blur(2px);"></div>
+        <div class="absolute inset-[3px] bg-[#0A0518] rounded-sm flex items-center justify-center font-display font-black" style="color:#FFC6EB">A</div>
+      </div>
+      <div>
+        <div class="font-display font-black text-xl tracking-widest">ADMIN<span style="color:#FF2EC4">//</span>PANEL</div>
+        <div class="font-mono text-[10px] tracking-[0.3em]" style="color:#7C6FAE">NEXUS BOSHQARUV</div>
+      </div>
+    </div>
+    <div class="font-mono text-[10px] tracking-[0.4em] mb-2" style="color:#00E5FF;">// TIZIMGA KIRISH</div>
+    <h3 class="font-display font-black text-2xl mb-6">ADMIN KIRISH</h3>
+
+    <div class="space-y-4">
+      <div>
+        <label>LOGIN</label>
+        <input id="loginUser" type="text" placeholder="admin" />
+      </div>
+      <div>
+        <label>PAROL</label>
+        <input id="loginPass" type="password" placeholder="••••••••" />
+      </div>
+      <button onclick="doLogin()" class="btn-primary w-full" style="padding: 14px 28px;">Kirish</button>
+      <a href="/" class="block text-center font-mono text-[10px] tracking-widest" style="color:#7C6FAE;">← SAYTGA QAYTISH</a>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" class="hidden">
+  <!-- TOP BAR -->
+  <nav class="sticky top-0 z-40 glass px-4 md:px-8 py-3">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="relative w-9 h-9">
+          <div class="absolute inset-0 rounded-sm" style="background: conic-gradient(from 0deg, #FF2EC4, #9D4EDD, #00E5FF, #FF2EC4); animation: spin 6s linear infinite; filter: blur(2px);"></div>
+          <div class="absolute inset-[3px] bg-[#0A0518] rounded-sm flex items-center justify-center font-display font-black text-sm" style="color:#FFC6EB">A</div>
+        </div>
+        <div>
+          <div class="font-display font-black text-base tracking-widest">ADMIN<span style="color:#FF2EC4">//</span></div>
+          <div class="font-mono text-[9px] tracking-[0.3em]" style="color:#7C6FAE">BOSHQARUV</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <a href="/" target="_blank" class="btn-ghost hidden md:inline-block">Sayt</a>
+        <button onclick="logout()" class="btn-danger">Chiqish</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="max-w-7xl mx-auto px-4 md:px-8 py-8">
+    <h1 class="font-display font-black text-3xl md:text-4xl mb-2"><span class="neon-magenta">BOSHQARUV</span> <span style="color:#EDE9F8;">MARKAZI</span></h1>
+    <p class="mb-6" style="color:#B9B0D6;">Hamma narsani shu yerdan boshqaring. O'zgarishlar darhol saytda ko'rinadi.</p>
+
+    <!-- TABS -->
+    <div class="flex gap-2 mb-6 overflow-x-auto pb-2">
+      <button class="tab active" data-tab="accounts">Akkauntlar</button>
+      <button class="tab" data-tab="uc">UC Paketlari</button>
+      <button class="tab" data-tab="tournaments">Turnirlar</button>
+      <button class="tab" data-tab="giveaways">Giveaway</button>
+      <button class="tab" data-tab="winners">G'oliblar</button>
+      <button class="tab" data-tab="leaderboard">Leaderboard</button>
+      <button class="tab" data-tab="matches">Jadval</button>
+      <button class="tab" data-tab="stats">Statistika</button>
+    </div>
+
+    <!-- CONTENT -->
+    <div id="tabAccounts" class="tab-content">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="font-display font-bold text-xl">Akkauntlar boshqaruvi</h2>
+        <button onclick="openAccountForm()" class="btn-primary">+ Yangi akkaunt</button>
+      </div>
+      <div id="accountsList" class="space-y-3"></div>
+    </div>
+
+    <div id="tabUc" class="tab-content hidden">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="font-display font-bold text-xl">UC paketlari</h2>
+        <button onclick="openUcForm()" class="btn-primary">+ Yangi UC paket</button>
+      </div>
+      <div id="ucList" class="space-y-3"></div>
+    </div>
+
+    <div id="tabTournaments" class="tab-content hidden">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="font-display font-bold text-xl">Turnirlar</h2>
+        <button onclick="openTournamentForm()" class="btn-primary">+ Yangi turnir</button>
+      </div>
+      <div id="tournamentsList" class="space-y-3"></div>
+    </div>
+
+    <div id="tabGiveaways" class="tab-content hidden">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="font-display font-bold text-xl">Giveaway'lar</h2>
+        <button onclick="openGiveawayForm()" class="btn-primary">+ Yangi giveaway</button>
+      </div>
+      <div id="giveawaysList" class="space-y-3"></div>
+    </div>
+
+    <div id="tabWinners" class="tab-content hidden">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="font-display font-bold text-xl">G'oliblar</h2>
+        <button onclick="openWinnerForm()" class="btn-primary">+ Yangi g'olib</button>
+      </div>
+      <div id="winnersList" class="space-y-3"></div>
+    </div>
+
+    <div id="tabLeaderboard" class="tab-content hidden">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="font-display font-bold text-xl">Leaderboard</h2>
+        <button onclick="openLeaderForm()" class="btn-primary">+ Yangi yozuv</button>
+      </div>
+      <div id="leaderList" class="space-y-3"></div>
+    </div>
+
+    <div id="tabMatches" class="tab-content hidden">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="font-display font-bold text-xl">O'yin jadvali</h2>
+        <button onclick="openMatchForm()" class="btn-primary">+ Yangi o'yin</button>
+      </div>
+      <div id="matchesList" class="space-y-3"></div>
+    </div>
+
+    <div id="tabStats" class="tab-content hidden">
+      <h2 class="font-display font-bold text-xl mb-4">Sayt statistikasi</h2>
+      <div class="holo p-6">
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label>SOTILGAN AKKAUNTLAR</label>
+            <input id="stat_sold" type="text" />
+          </div>
+          <div>
+            <label>XAVFSIZLIK (%)</label>
+            <input id="stat_safety" type="text" />
+          </div>
+          <div>
+            <label>ONLINE FOYDALANUVCHILAR</label>
+            <input id="stat_online" type="text" />
+          </div>
+          <div>
+            <label>USD → UZS KURS</label>
+            <input id="stat_rate" type="number" />
+          </div>
+        </div>
+        <button onclick="saveStats()" class="btn-primary mt-6">Saqlash</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GENERIC FORM MODAL -->
+<div id="formModal" class="hidden fixed inset-0 z-[100] modal-bg items-center justify-center p-4 overflow-y-auto">
+  <div class="glass max-w-3xl w-full rounded-lg my-8">
+    <div class="flex items-center justify-between p-5 border-b" style="border-color: rgba(157,78,221,0.2);">
+      <h3 id="formTitle" class="font-display font-black text-xl"></h3>
+      <button onclick="closeForm()" class="w-9 h-9 rounded-sm border border-white/10 hover:border-neon-magenta" style="color:#B9B0D6;">×</button>
+    </div>
+    <div id="formBody" class="p-6 max-h-[70vh] overflow-y-auto"></div>
+    <div class="p-5 border-t flex justify-end gap-3" style="border-color: rgba(157,78,221,0.2);">
+      <button onclick="closeForm()" class="btn-ghost">Bekor qilish</button>
+      <button id="formSubmit" class="btn-primary">Saqlash</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast">Saqlandi</div>
+
+<script>
+let TOKEN = localStorage.getItem('nexus_admin_token') || '';
+let currentEdit = null;
+
+// ============================ AUTH ============================
+async function doLogin() {
+  const username = document.getElementById('loginUser').value.trim();
+  const password = document.getElementById('loginPass').value.trim();
+  if (!username || !password) return showToast('Login va parol kerak', true);
+
+  try {
+    const res = await fetch('/api/admin/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
+    const data = await res.json();
+    if (!res.ok) return showToast(data.error || 'Xato', true);
+    TOKEN = data.token;
+    localStorage.setItem('nexus_admin_token', TOKEN);
+    showDashboard();
+  } catch (e) {
+    showToast('Server bilan aloqa yo\'q', true);
+  }
+}
+
+function logout() {
+  localStorage.removeItem('nexus_admin_token');
+  TOKEN = '';
+  location.reload();
+}
+
+async function checkAuth() {
+  if (!TOKEN) return false;
+  try {
+    const res = await fetch('/api/admin/verify', { headers: { Authorization: 'Bearer ' + TOKEN } });
+    return res.ok;
+  } catch { return false; }
+}
+
+function showDashboard() {
+  document.getElementById('loginScreen').classList.add('hidden');
+  document.getElementById('dashboard').classList.remove('hidden');
+  loadAll();
+}
+
+document.getElementById('loginPass').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+
+// ============================ API HELPER ============================
+async function api(path, options = {}) {
+  const headers = { 'Content-Type': 'application/json', ...options.headers };
+  if (TOKEN) headers.Authorization = 'Bearer ' + TOKEN;
+  const res = await fetch(path, { ...options, headers });
+  if (res.status === 401) { logout(); throw new Error('Auth tugadi'); }
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'Xato');
+  return data;
+}
+
+// ============================ TABS ============================
+document.querySelectorAll('.tab').forEach(t => {
+  t.onclick = () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+    const id = 'tab' + t.dataset.tab.charAt(0).toUpperCase() + t.dataset.tab.slice(1);
+    document.getElementById(id).classList.remove('hidden');
+  };
+});
+
+// ============================ LOAD ALL ============================
+async function loadAll() {
+  try {
+    const [accs, uc, tours, gives, wins, leader, matches, stats] = await Promise.all([
+      api('/api/admin/accounts'),
+      api('/api/uc'),
+      api('/api/tournaments'),
+      api('/api/giveaways'),
+      api('/api/winners'),
+      api('/api/leaderboard'),
+      api('/api/matches'),
+      api('/api/stats')
+    ]);
+    renderAccounts(accs);
+    renderUc(uc);
+    renderTournaments(tours);
+    renderGiveaways(gives);
+    renderWinners(wins);
+    renderLeaderboard(leader);
+    renderMatches(matches);
+    renderStats(stats);
+  } catch (e) {
+    showToast(e.message, true);
+  }
+}
+
+// ============================ ACCOUNTS ============================
+function renderAccounts(list) {
+  const el = document.getElementById('accountsList');
+  if (!list.length) {
+    el.innerHTML = '<div class="text-center py-12 font-mono text-xs" style="color:#7C6FAE;">// AKKAUNTLAR YO\'Q — YANGI QO\'SHISH UCHUN TUGMANI BOSING //</div>';
+    return;
+  }
+  el.innerHTML = list.map(a => `
+    <div class="row" style="grid-template-columns: 1fr auto;">
+      <div>
+        <div class="flex items-center gap-3 mb-1">
+          <div class="font-display font-black text-lg">${a.title}</div>
+          <span class="font-mono text-[9px] tracking-widest px-2 py-0.5 rounded-sm" style="background:rgba(157,78,221,0.2); color:#E2C9FF;">${(a.tag || '').toUpperCase()}</span>
+          ${a.sold ? '<span class="font-mono text-[9px] tracking-widest px-2 py-0.5 rounded-sm" style="background:rgba(255,46,196,0.2); color:#FFC6EB;">SOTILGAN</span>' : ''}
+        </div>
+        <div class="text-sm" style="color:#B9B0D6;">${a.region || '—'} • KD ${a.kd || '—'} • Level ${a.level} • ${a.mythics} mythic • $${a.price}</div>
+      </div>
+      <div class="flex gap-2">
+        <button class="btn-edit" onclick='editAccount(${JSON.stringify(a).replace(/'/g, "&apos;")})'>Tahrirlash</button>
+        <button class="btn-danger" onclick="deleteItem('accounts', ${a.id}, 'Akkaunt')">O'chirish</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openAccountForm() {
+  currentEdit = null;
+  showForm('Yangi akkaunt', accountFormHtml({}), saveAccount);
+}
+
+function editAccount(a) {
+  currentEdit = a;
+  showForm('Akkaunt tahrirlash', accountFormHtml(a), saveAccount);
+}
+
+function accountFormHtml(a) {
+  return `
+    <div class="grid sm:grid-cols-2 gap-4">
+      <div><label>Kod (2 belgi)</label><input id="f_code" value="${a.code || ''}" maxlength="3" /></div>
+      <div><label>Sarlavha</label><input id="f_title" value="${a.title || ''}" /></div>
+      <div>
+        <label>Kategoriya</label>
+        <select id="f_tag">
+          <option value="mythic" ${a.tag === 'mythic' ? 'selected' : ''}>Mythic</option>
+          <option value="conqueror" ${a.tag === 'conqueror' ? 'selected' : ''}>Conqueror</option>
+          <option value="ace" ${a.tag === 'ace' ? 'selected' : ''}>Ace</option>
+          <option value="mythic conqueror" ${a.tag === 'mythic conqueror' ? 'selected' : ''}>Mythic + Conqueror</option>
+        </select>
+      </div>
+      <div><label>Region</label><input id="f_region" value="${a.region || ''}" placeholder="Osiyo / KRJP / NA / Yevropa" /></div>
+      <div><label>KD</label><input id="f_kd" value="${a.kd || ''}" placeholder="5.84" /></div>
+      <div><label>Level</label><input id="f_level" type="number" value="${a.level || 1}" /></div>
+      <div><label>Mythic soni</label><input id="f_mythics" type="number" value="${a.mythics || 0}" /></div>
+      <div><label>Tier</label><input id="f_tier" value="${a.tier || ''}" placeholder="A+" /></div>
+      <div><label>Narx ($)</label><input id="f_price" type="number" value="${a.price || 0}" /></div>
+      <div><label>Color 1</label><input id="f_color1" type="color" value="${a.color1 || '#2B1055'}" /></div>
+      <div><label>Color 2</label><input id="f_color2" type="color" value="${a.color2 || '#7597DE'}" /></div>
+      <div class="sm:col-span-2"><label>Teglar (vergul bilan)</label><input id="f_tags" value="${(a.tags || []).join(', ')}" placeholder="M416 GLACIER, PHARAOH X-SUIT" /></div>
+      <div class="sm:col-span-2"><label>YouTube video (embed link)</label><input id="f_video" value="${a.video || ''}" placeholder="https://www.youtube.com/embed/VIDEO_ID" /></div>
+      <div class="sm:col-span-2"><label>Tavsif</label><textarea id="f_desc" rows="3">${a.description || ''}</textarea></div>
+      <div class="sm:col-span-2">
+        <label>Skinlar (JSON formatda)</label>
+        <textarea id="f_skins" rows="4" placeholder='[{"name":"M416 Glacier","rarity":"Legendary","icon":"🔫"}]'>${JSON.stringify(a.skins || [], null, 2)}</textarea>
+      </div>
+      <div class="sm:col-span-2">
+        <label>Statistika (JSON formatda)</label>
+        <textarea id="f_stats" rows="3" placeholder='{"wins":1284,"kills":8742,"hsRate":"34%","avgDmg":612,"top10":"78%"}'>${JSON.stringify(a.stats || {}, null, 2)}</textarea>
+      </div>
+      ${currentEdit ? `<div class="sm:col-span-2"><label><input type="checkbox" id="f_sold" ${a.sold ? 'checked' : ''} style="width:auto; margin-right:8px;" />Sotilgan deb belgilash (saytda yashiriladi)</label></div>` : ''}
+    </div>
+  `;
+}
+
+async function saveAccount() {
+  let skins, stats;
+  try { skins = JSON.parse(document.getElementById('f_skins').value || '[]'); }
+  catch { return showToast('Skinlar JSON noto\'g\'ri', true); }
+  try { stats = JSON.parse(document.getElementById('f_stats').value || '{}'); }
+  catch { return showToast('Stats JSON noto\'g\'ri', true); }
+
+  const data = {
+    code: document.getElementById('f_code').value.trim(),
+    title: document.getElementById('f_title').value.trim(),
+    tag: document.getElementById('f_tag').value,
+    region: document.getElementById('f_region').value.trim(),
+    kd: document.getElementById('f_kd').value.trim(),
+    level: parseInt(document.getElementById('f_level').value) || 1,
+    mythics: parseInt(document.getElementById('f_mythics').value) || 0,
+    tier: document.getElementById('f_tier').value.trim(),
+    price: parseInt(document.getElementById('f_price').value) || 0,
+    color1: document.getElementById('f_color1').value,
+    color2: document.getElementById('f_color2').value,
+    tags: document.getElementById('f_tags').value.split(',').map(s => s.trim()).filter(Boolean),
+    video: document.getElementById('f_video').value.trim(),
+    description: document.getElementById('f_desc').value.trim(),
+    skins, stats,
+    sold: document.getElementById('f_sold')?.checked || false
+  };
+
+  if (!data.title || !data.price) return showToast('Sarlavha va narx kerak', true);
+
+  try {
+    if (currentEdit) {
+      await api('/api/admin/accounts/' + currentEdit.id, { method: 'PUT', body: JSON.stringify(data) });
+    } else {
+      await api('/api/admin/accounts', { method: 'POST', body: JSON.stringify(data) });
+    }
+    closeForm();
+    showToast('Saqlandi');
+    loadAll();
+  } catch (e) { showToast(e.message, true); }
+}
+
+// ============================ UC ============================
+function renderUc(list) {
+  const el = document.getElementById('ucList');
+  if (!list.length) {
+    el.innerHTML = '<div class="text-center py-12 font-mono text-xs" style="color:#7C6FAE;">// UC PAKETLARI YO\'Q //</div>';
+    return;
+  }
+  el.innerHTML = list.map(p => `
+    <div class="row" style="grid-template-columns: 1fr auto;">
+      <div>
+        <div class="font-display font-black text-lg" style="color:#FFD166;">${p.uc} UC</div>
+        <div class="text-sm" style="color:#B9B0D6;">$${p.usd} • ${p.tag || '—'} • Tartib: ${p.sort_order}</div>
+      </div>
+      <div class="flex gap-2">
+        <button class="btn-edit" onclick='editUc(${JSON.stringify(p)})'>Tahrirlash</button>
+        <button class="btn-danger" onclick="deleteItem('uc', ${p.id}, 'UC paket')">O'chirish</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openUcForm() {
+  currentEdit = null;
+  showForm('Yangi UC paket', ucFormHtml({}), saveUc);
+}
+
+function editUc(p) {
+  currentEdit = p;
+  showForm('UC paket tahrirlash', ucFormHtml(p), saveUc);
+}
+
+function ucFormHtml(p) {
+  return `
+    <div class="grid sm:grid-cols-2 gap-4">
+      <div><label>UC miqdori</label><input id="f_uc" type="number" value="${p.uc || ''}" /></div>
+      <div><label>USD narx</label><input id="f_usd" type="number" step="0.01" value="${p.usd || ''}" /></div>
+      <div><label>Tag (STARTER, SCOUT, ...)</label><input id="f_tag" value="${p.tag || ''}" /></div>
+      <div><label>Glow rangi</label><input id="f_glow" type="color" value="${p.glow || '#00E5FF'}" /></div>
+      <div><label>Tartib (0,1,2...)</label><input id="f_sort" type="number" value="${p.sort_order || 0}" /></div>
+    </div>
+  `;
+}
+
+async function saveUc() {
+  const data = {
+    uc: parseInt(document.getElementById('f_uc').value),
+    usd: parseFloat(document.getElementById('f_usd').value),
+    tag: document.getElementById('f_tag').value.trim(),
+    glow: document.getElementById('f_glow').value,
+    sort_order: parseInt(document.getElementById('f_sort').value) || 0
+  };
+  if (!data.uc || !data.usd) return showToast('UC va USD kerak', true);
+
+  try {
+    if (currentEdit) await api('/api/admin/uc/' + currentEdit.id, { method: 'PUT', body: JSON.stringify(data) });
+    else await api('/api/admin/uc', { method: 'POST', body: JSON.stringify(data) });
+    closeForm();
+    showToast('Saqlandi');
+    loadAll();
+  } catch (e) { showToast(e.message, true); }
+}
+
+// ============================ TOURNAMENTS ============================
+function renderTournaments(list) {
+  const el = document.getElementById('tournamentsList');
+  if (!list.length) {
+    el.innerHTML = '<div class="text-center py-12 font-mono text-xs" style="color:#7C6FAE;">// TURNIRLAR YO\'Q //</div>';
+    return;
+  }
+  el.innerHTML = list.map(t => `
+    <div class="row" style="grid-template-columns: 1fr auto;">
+      <div>
+        <div class="font-display font-black text-lg">${t.title}</div>
+        <div class="text-sm" style="color:#B9B0D6;">${t.mode} • ${t.prize} • ${t.filled}/${t.slots} joy • ${t.tag}</div>
+      </div>
+      <div class="flex gap-2">
+        <button class="btn-edit" onclick='editTournament(${JSON.stringify(t)})'>Tahrirlash</button>
+        <button class="btn-danger" onclick="deleteItem('tournaments', ${t.id}, 'Turnir')">O'chirish</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openTournamentForm() {
+  currentEdit = null;
+  showForm('Yangi turnir', tournamentFormHtml({}), saveTournament);
+}
+
+function editTournament(t) {
+  currentEdit = t;
+  showForm('Turnir tahrirlash', tournamentFormHtml(t), saveTournament);
+}
+
+function tournamentFormHtml(t) {
+  const endVal = t.ends_at ? new Date(t.ends_at).toISOString().slice(0, 16) : '';
+  return `
+    <div class="grid sm:grid-cols-2 gap-4">
+      <div class="sm:col-span-2"><label>Sarlavha</label><input id="f_title" value="${t.title || ''}" /></div>
+      <div>
+        <label>Rejim</label>
+        <select id="f_mode">
+          <option ${t.mode === 'SOLO' ? 'selected' : ''}>SOLO</option>
+          <option ${t.mode === 'DUO' ? 'selected' : ''}>DUO</option>
+          <option ${t.mode === 'SQUAD' ? 'selected' : ''}>SQUAD</option>
+        </select>
+      </div>
+      <div>
+        <label>Tag</label>
+        <select id="f_tag">
+          <option ${t.tag === 'HAFTALIK' ? 'selected' : ''}>HAFTALIK</option>
+          <option ${t.tag === 'OYLIK' ? 'selected' : ''}>OYLIK</option>
+          <option ${t.tag === 'MAXSUS' ? 'selected' : ''}>MAXSUS</option>
+        </select>
+      </div>
+      <div><label>Mukofot ($)</label><input id="f_prize" value="${t.prize || ''}" placeholder="$500" /></div>
+      <div><label>Mukofot (so'm)</label><input id="f_prize_uzs" value="${t.prize_uzs || ''}" placeholder="6,250,000" /></div>
+      <div><label>Jami joylar</label><input id="f_slots" type="number" value="${t.slots || 0}" /></div>
+      <div><label>To'lgan joylar</label><input id="f_filled" type="number" value="${t.filled || 0}" /></div>
+      <div><label>Kirish narxi</label><input id="f_entry" value="${t.entry || ''}" placeholder="BEPUL yoki 50,000 so'm" /></div>
+      <div><label>Rang</label><input id="f_color" type="color" value="${t.color || '#00E5FF'}" /></div>
+      <div><label>Xarita</label><input id="f_map" value="${t.map || ''}" placeholder="Erangel · Miramar" /></div>
+      <div class="sm:col-span-2"><label>Boshlanish vaqti</label><input id="f_ends" type="datetime-local" value="${endVal}" /></div>
+    </div>
+  `;
+}
+
+async function saveTournament() {
+  const data = {
+    title: document.getElementById('f_title').value.trim(),
+    mode: document.getElementById('f_mode').value,
+    tag: document.getElementById('f_tag').value,
+    prize: document.getElementById('f_prize').value.trim(),
+    prize_uzs: document.getElementById('f_prize_uzs').value.trim(),
+    slots: parseInt(document.getElementById('f_slots').value) || 0,
+    filled: parseInt(document.getElementById('f_filled').value) || 0,
+    entry: document.getElementById('f_entry').value.trim(),
+    color: document.getElementById('f_color').value,
+    map: document.getElementById('f_map').value.trim(),
+    ends_at: document.getElementById('f_ends').value || null
+  };
+  if (!data.title) return showToast('Sarlavha kerak', true);
+
+  try {
+    if (currentEdit) await api('/api/admin/tournaments/' + currentEdit.id, { method: 'PUT', body: JSON.stringify(data) });
+    else await api('/api/admin/tournaments', { method: 'POST', body: JSON.stringify(data) });
+    closeForm();
+    showToast('Saqlandi');
+    loadAll();
+  } catch (e) { showToast(e.message, true); }
+}
+
+// ============================ GIVEAWAYS ============================
+function renderGiveaways(list) {
+  const el = document.getElementById('giveawaysList');
+  if (!list.length) {
+    el.innerHTML = '<div class="text-center py-12 font-mono text-xs" style="color:#7C6FAE;">// GIVEAWAY YO\'Q //</div>';
+    return;
+  }
+  el.innerHTML = list.map(g => `
+    <div class="row" style="grid-template-columns: 1fr auto;">
+      <div>
+        <div class="font-display font-black text-lg">${g.title}</div>
+        <div class="text-sm" style="color:#B9B0D6;">${g.prize} • ${g.tag}</div>
+      </div>
+      <div class="flex gap-2">
+        <button class="btn-edit" onclick='editGiveaway(${JSON.stringify(g)})'>Tahrirlash</button>
+        <button class="btn-danger" onclick="deleteItem('giveaways', ${g.id}, 'Giveaway')">O'chirish</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openGiveawayForm() {
+  currentEdit = null;
+  showForm('Yangi giveaway', giveawayFormHtml({}), saveGiveaway);
+}
+
+function editGiveaway(g) {
+  currentEdit = g;
+  showForm('Giveaway tahrirlash', giveawayFormHtml(g), saveGiveaway);
+}
+
+function giveawayFormHtml(g) {
+  const endVal = g.ends_at ? new Date(g.ends_at).toISOString().slice(0, 16) : '';
+  return `
+    <div class="grid sm:grid-cols-2 gap-4">
+      <div class="sm:col-span-2"><label>Sarlavha</label><input id="f_title" value="${g.title || ''}" /></div>
+      <div class="sm:col-span-2"><label>Tavsif</label><input id="f_sub" value="${g.sub || ''}" /></div>
+      <div><label>Mukofot</label><input id="f_prize" value="${g.prize || ''}" placeholder="1,800 UC" /></div>
+      <div>
+        <label>Tag</label>
+        <select id="f_tag">
+          <option ${g.tag === 'HAFTALIK' ? 'selected' : ''}>HAFTALIK</option>
+          <option ${g.tag === 'OYLIK' ? 'selected' : ''}>OYLIK</option>
+          <option ${g.tag === 'MAXSUS' ? 'selected' : ''}>MAXSUS</option>
+        </select>
+      </div>
+      <div><label>Rang</label><input id="f_color" type="color" value="${g.color || '#00E5FF'}" /></div>
+      <div><label>Tugash vaqti</label><input id="f_ends" type="datetime-local" value="${endVal}" /></div>
+    </div>
+  `;
+}
+
+async function saveGiveaway() {
+  const data = {
+    title: document.getElementById('f_title').value.trim(),
+    sub: document.getElementById('f_sub').value.trim(),
+    prize: document.getElementById('f_prize').value.trim(),
+    tag: document.getElementById('f_tag').value,
+    color: document.getElementById('f_color').value,
+    ends_at: document.getElementById('f_ends').value || null
+  };
+  if (!data.title) return showToast('Sarlavha kerak', true);
+
+  try {
+    if (currentEdit) await api('/api/admin/giveaways/' + currentEdit.id, { method: 'PUT', body: JSON.stringify(data) });
+    else await api('/api/admin/giveaways', { method: 'POST', body: JSON.stringify(data) });
+    closeForm();
+    showToast('Saqlandi');
+    loadAll();
+  } catch (e) { showToast(e.message, true); }
+}
+
+// ============================ WINNERS ============================
+function renderWinners(list) {
+  const el = document.getElementById('winnersList');
+  if (!list.length) {
+    el.innerHTML = '<div class="text-center py-12 font-mono text-xs" style="color:#7C6FAE;">// G\'OLIBLAR YO\'Q //</div>';
+    return;
+  }
+  el.innerHTML = list.map(w => `
+    <div class="row" style="grid-template-columns: 1fr auto;">
+      <div>
+        <div class="font-display font-black text-lg">${w.name}</div>
+        <div class="text-sm" style="color:#B9B0D6;">${w.prize} • ${w.date}</div>
+      </div>
+      <button class="btn-danger" onclick="deleteItem('winners', ${w.id}, 'G\\'olib')">O'chirish</button>
+    </div>
+  `).join('');
+}
+
+function openWinnerForm() {
+  showForm('Yangi g\'olib', `
+    <div class="grid sm:grid-cols-3 gap-4">
+      <div><label>Ism</label><input id="f_name" /></div>
+      <div><label>Mukofot</label><input id="f_prize" placeholder="1800 UC" /></div>
+      <div><label>Sana</label><input id="f_date" placeholder="28 OKT" /></div>
+    </div>
+  `, async () => {
+    const data = {
+      name: document.getElementById('f_name').value.trim(),
+      prize: document.getElementById('f_prize').value.trim(),
+      date: document.getElementById('f_date').value.trim()
+    };
+    if (!data.name) return showToast('Ism kerak', true);
+    try {
+      await api('/api/admin/winners', { method: 'POST', body: JSON.stringify(data) });
+      closeForm();
+      showToast('Saqlandi');
+      loadAll();
+    } catch (e) { showToast(e.message, true); }
+  });
+}
+
+// ============================ LEADERBOARD ============================
+function renderLeaderboard(list) {
+  const el = document.getElementById('leaderList');
+  if (!list.length) {
+    el.innerHTML = '<div class="text-center py-12 font-mono text-xs" style="color:#7C6FAE;">// LEADERBOARD BO\'SH //</div>';
+    return;
+  }
+  el.innerHTML = list.map(p => `
+    <div class="row" style="grid-template-columns: 1fr auto;">
+      <div>
+        <div class="font-display font-black text-lg">#${p.rank} ${p.name}</div>
+        <div class="text-sm" style="color:#B9B0D6;">${p.team || '—'} • ${p.points} ball • ${p.kills} kills</div>
+      </div>
+      <div class="flex gap-2">
+        <button class="btn-edit" onclick='editLeader(${JSON.stringify(p)})'>Tahrirlash</button>
+        <button class="btn-danger" onclick="deleteItem('leaderboard', ${p.id}, 'Yozuv')">O'chirish</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openLeaderForm() {
+  currentEdit = null;
+  showForm('Yangi yozuv', leaderFormHtml({}), saveLeader);
+}
+
+function editLeader(p) {
+  currentEdit = p;
+  showForm('Yozuvni tahrirlash', leaderFormHtml(p), saveLeader);
+}
+
+function leaderFormHtml(p) {
+  return `
+    <div class="grid sm:grid-cols-2 gap-4">
+      <div><label>Reyting (1, 2, 3...)</label><input id="f_rank" type="number" value="${p.rank || 1}" /></div>
+      <div><label>Ism</label><input id="f_name" value="${p.name || ''}" /></div>
+      <div><label>Jamoa</label><input id="f_team" value="${p.team || ''}" /></div>
+      <div><label>Ball</label><input id="f_points" type="number" value="${p.points || 0}" /></div>
+      <div><label>Kills</label><input id="f_kills" type="number" value="${p.kills || 0}" /></div>
+      <div><label>Rang</label><input id="f_color" type="color" value="${p.color || '#9D4EDD'}" /></div>
+    </div>
+  `;
+}
+
+async function saveLeader() {
+  const data = {
+    rank: parseInt(document.getElementById('f_rank').value) || 1,
+    name: document.getElementById('f_name').value.trim(),
+    team: document.getElementById('f_team').value.trim(),
+    points: parseInt(document.getElementById('f_points').value) || 0,
+    kills: parseInt(document.getElementById('f_kills').value) || 0,
+    color: document.getElementById('f_color').value
+  };
+  if (!data.name) return showToast('Ism kerak', true);
+  try {
+    if (currentEdit) await api('/api/admin/leaderboard/' + currentEdit.id, { method: 'PUT', body: JSON.stringify(data) });
+    else await api('/api/admin/leaderboard', { method: 'POST', body: JSON.stringify(data) });
+    closeForm();
+    showToast('Saqlandi');
+    loadAll();
+  } catch (e) { showToast(e.message, true); }
+}
+
+// ============================ MATCHES ============================
+function renderMatches(list) {
+  const el = document.getElementById('matchesList');
+  if (!list.length) {
+    el.innerHTML = '<div class="text-center py-12 font-mono text-xs" style="color:#7C6FAE;">// O\'YINLAR YO\'Q //</div>';
+    return;
+  }
+  el.innerHTML = list.map(m => `
+    <div class="row" style="grid-template-columns: 1fr auto;">
+      <div>
+        <div class="font-display font-black text-base">${m.team1} VS ${m.team2}</div>
+        <div class="text-sm" style="color:#B9B0D6;">${m.date_label} ${m.time_label} ${m.live ? '• LIVE' : ''}</div>
+      </div>
+      <div class="flex gap-2">
+        <button class="btn-edit" onclick='editMatch(${JSON.stringify(m)})'>Tahrirlash</button>
+        <button class="btn-danger" onclick="deleteItem('matches', ${m.id}, 'O\\'yin')">O'chirish</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openMatchForm() {
+  currentEdit = null;
+  showForm('Yangi o\'yin', matchFormHtml({}), saveMatch);
+}
+
+function editMatch(m) {
+  currentEdit = m;
+  showForm('O\'yinni tahrirlash', matchFormHtml(m), saveMatch);
+}
+
+function matchFormHtml(m) {
+  return `
+    <div class="grid sm:grid-cols-2 gap-4">
+      <div><label>Sana (BUGUN, ERTAGA, 28 OKT...)</label><input id="f_date" value="${m.date_label || ''}" /></div>
+      <div><label>Vaqt</label><input id="f_time" value="${m.time_label || ''}" placeholder="20:00" /></div>
+      <div><label>1-jamoa</label><input id="f_t1" value="${m.team1 || ''}" /></div>
+      <div><label>2-jamoa</label><input id="f_t2" value="${m.team2 || ''}" /></div>
+      <div><label>Tartib</label><input id="f_sort" type="number" value="${m.sort_order || 0}" /></div>
+      <div><label><input type="checkbox" id="f_live" ${m.live ? 'checked' : ''} style="width:auto; margin-right:8px;" />LIVE (efir)</label></div>
+    </div>
+  `;
+}
+
+async function saveMatch() {
+  const data = {
+    date_label: document.getElementById('f_date').value.trim(),
+    time_label: document.getElementById('f_time').value.trim(),
+    team1: document.getElementById('f_t1').value.trim(),
+    team2: document.getElementById('f_t2').value.trim(),
+    sort_order: parseInt(document.getElementById('f_sort').value) || 0,
+    live: document.getElementById('f_live').checked
+  };
+  if (!data.team1 || !data.team2) return showToast('Jamoalar kerak', true);
+  try {
+    if (currentEdit) await api('/api/admin/matches/' + currentEdit.id, { method: 'PUT', body: JSON.stringify(data) });
+    else await api('/api/admin/matches', { method: 'POST', body: JSON.stringify(data) });
+    closeForm();
+    showToast('Saqlandi');
+    loadAll();
+  } catch (e) { showToast(e.message, true); }
+}
+
+// ============================ STATS ============================
+function renderStats(s) {
+  document.getElementById('stat_sold').value = s.sold_accounts || '0';
+  document.getElementById('stat_safety').value = s.safety_percent || '100%';
+  document.getElementById('stat_online').value = s.online_users || '0';
+  document.getElementById('stat_rate').value = s.uzs_rate || '12500';
+}
+
+async function saveStats() {
+  const data = {
+    sold_accounts: document.getElementById('stat_sold').value.trim(),
+    safety_percent: document.getElementById('stat_safety').value.trim(),
+    online_users: document.getElementById('stat_online').value.trim(),
+    uzs_rate: document.getElementById('stat_rate').value.trim()
+  };
+  try {
+    await api('/api/admin/stats', { method: 'PUT', body: JSON.stringify(data) });
+    showToast('Saqlandi');
+  } catch (e) { showToast(e.message, true); }
+}
+
+// ============================ GENERIC ============================
+async function deleteItem(type, id, label) {
+  if (!confirm(label + 'ni o\'chirishni tasdiqlaysizmi?')) return;
+  try {
+    await api(`/api/admin/${type}/${id}`, { method: 'DELETE' });
+    showToast('O\'chirildi');
+    loadAll();
+  } catch (e) { showToast(e.message, true); }
+}
+
+function showForm(title, html, onSubmit) {
+  document.getElementById('formTitle').textContent = title;
+  document.getElementById('formBody').innerHTML = html;
+  const btn = document.getElementById('formSubmit');
+  const newBtn = btn.cloneNode(true);
+  btn.parentNode.replaceChild(newBtn, btn);
+  newBtn.onclick = onSubmit;
+  document.getElementById('formModal').classList.remove('hidden');
+  document.getElementById('formModal').classList.add('flex');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeForm() {
+  document.getElementById('formModal').classList.add('hidden');
+  document.getElementById('formModal').classList.remove('flex');
+  document.body.style.overflow = '';
+  currentEdit = null;
+}
+
+document.getElementById('formModal').addEventListener('click', e => {
+  if (e.target.id === 'formModal') closeForm();
+});
+
+function showToast(msg, isError = false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.toggle('error', isError);
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+// ============================ INIT ============================
+(async () => {
+  if (await checkAuth()) showDashboard();
+})();
+</script>
+</body>
+</html>
