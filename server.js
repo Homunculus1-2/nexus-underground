@@ -4,14 +4,14 @@ const path = require('path');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const { pool, initDb } = require('./db');
-
+ 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET;
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME;
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 const NODE_ENV = process.env.NODE_ENV || 'development';
-
+ 
 // ============================ XAVFSIZLIK TEKSHIRUVI ============================
 if (!JWT_SECRET || JWT_SECRET.length < 16) {
   console.error('❌ JWT_SECRET o\'rnatilmagan yoki juda qisqa (kamida 16 belgi). Railway Variables\'da qo\'shing.');
@@ -25,10 +25,10 @@ if (ADMIN_PASSWORD.length < 8) {
   console.error('❌ ADMIN_PASSWORD juda qisqa (kamida 8 belgi).');
   process.exit(1);
 }
-
+ 
 app.use(cors());
 app.use(express.json({ limit: '2mb' }));
-
+ 
 // ============================ STATIC FAYLLAR ============================
 // Avval `public/` papkani sinab ko'radi, bo'lmasa root'ni ishlatadi.
 // Bu sizga ikkala holatda ham ishlash imkonini beradi.
@@ -39,7 +39,7 @@ if (!fs.existsSync(path.join(PUBLIC_DIR, 'index.html'))) {
 }
 console.log('📂 Public directory:', PUBLIC_DIR);
 app.use(express.static(PUBLIC_DIR));
-
+ 
 // ============================ AUTH MIDDLEWARE ============================
 function requireAdmin(req, res, next) {
   const auth = req.headers.authorization;
@@ -56,12 +56,12 @@ function requireAdmin(req, res, next) {
     return res.status(401).json({ error: 'Token noto\'g\'ri' });
   }
 }
-
+ 
 // ============================ LOGIN RATE LIMIT (oddiy) ============================
 const loginAttempts = new Map(); // ip -> { count, firstAt }
 const MAX_ATTEMPTS = 5;
 const WINDOW_MS = 15 * 60 * 1000; // 15 daqiqa
-
+ 
 function checkRateLimit(ip) {
   const now = Date.now();
   const rec = loginAttempts.get(ip);
@@ -73,11 +73,11 @@ function checkRateLimit(ip) {
   if (rec.count > MAX_ATTEMPTS) return false;
   return true;
 }
-
+ 
 function resetRateLimit(ip) {
   loginAttempts.delete(ip);
 }
-
+ 
 // Eski yozuvlarni har 30 daqiqada tozalash
 setInterval(() => {
   const now = Date.now();
@@ -85,7 +85,7 @@ setInterval(() => {
     if (now - rec.firstAt > WINDOW_MS) loginAttempts.delete(ip);
   }
 }, 30 * 60 * 1000);
-
+ 
 // ============================ XATOLARNI SAFE QAYTARISH ============================
 function safeError(res, err, label = 'Server xatosi') {
   console.error(`[${label}]`, err);
@@ -93,40 +93,40 @@ function safeError(res, err, label = 'Server xatosi') {
   const msg = NODE_ENV === 'production' ? label : (err.message || label);
   res.status(500).json({ error: msg });
 }
-
+ 
 // ============================ AUTH ============================
 app.post('/api/admin/login', async (req, res) => {
   const ip = req.ip || req.connection.remoteAddress || 'unknown';
-
+ 
   if (!checkRateLimit(ip)) {
     return res.status(429).json({ error: 'Juda ko\'p urinish. 15 daqiqadan keyin qayta urining.' });
   }
-
+ 
   const { username, password } = req.body || {};
   if (!username || !password) {
     return res.status(400).json({ error: 'Login va parol kerak' });
   }
-
+ 
   if (username !== ADMIN_USERNAME || password !== ADMIN_PASSWORD) {
     return res.status(401).json({ error: 'Login yoki parol noto\'g\'ri' });
   }
-
+ 
   resetRateLimit(ip);
   const token = jwt.sign({ admin: true, username }, JWT_SECRET, { expiresIn: '7d' });
   res.json({ token });
 });
-
+ 
 app.get('/api/admin/verify', requireAdmin, (req, res) => {
   res.json({ ok: true, user: req.user });
 });
-
+ 
 // ============================ HELPER ============================
 function parseJson(field) {
   if (!field) return null;
   if (typeof field === 'object') return field;
   try { return JSON.parse(field); } catch { return null; }
 }
-
+ 
 function rowToAccount(r) {
   return {
     id: r.id,
@@ -149,7 +149,7 @@ function rowToAccount(r) {
     sold: r.sold
   };
 }
-
+ 
 // ============================ ACCOUNTS ============================
 app.get('/api/accounts', async (req, res) => {
   try {
@@ -157,14 +157,14 @@ app.get('/api/accounts', async (req, res) => {
     res.json(rows.map(rowToAccount));
   } catch (e) { safeError(res, e, 'Akkauntlarni olishda xato'); }
 });
-
+ 
 app.get('/api/admin/accounts', requireAdmin, async (req, res) => {
   try {
     const { rows } = await pool.query('SELECT * FROM accounts ORDER BY created_at DESC');
     res.json(rows.map(rowToAccount));
   } catch (e) { safeError(res, e, 'Akkauntlarni olishda xato'); }
 });
-
+ 
 app.post('/api/admin/accounts', requireAdmin, async (req, res) => {
   try {
     const a = req.body;
@@ -181,7 +181,7 @@ app.post('/api/admin/accounts', requireAdmin, async (req, res) => {
     res.json(rowToAccount(rows[0]));
   } catch (e) { safeError(res, e, 'Akkaunt qo\'shishda xato'); }
 });
-
+ 
 app.put('/api/admin/accounts/:id', requireAdmin, async (req, res) => {
   try {
     const a = req.body;
@@ -200,14 +200,14 @@ app.put('/api/admin/accounts/:id', requireAdmin, async (req, res) => {
     res.json(rowToAccount(rows[0]));
   } catch (e) { safeError(res, e, 'Akkauntni yangilashda xato'); }
 });
-
+ 
 app.delete('/api/admin/accounts/:id', requireAdmin, async (req, res) => {
   try {
     await pool.query('DELETE FROM accounts WHERE id=$1', [req.params.id]);
     res.json({ ok: true });
   } catch (e) { safeError(res, e, 'Akkauntni o\'chirishda xato'); }
 });
-
+ 
 // ============================ UC PACKAGES ============================
 app.get('/api/uc', async (req, res) => {
   try {
@@ -215,7 +215,7 @@ app.get('/api/uc', async (req, res) => {
     res.json(rows);
   } catch (e) { safeError(res, e, 'UC paketlarini olishda xato'); }
 });
-
+ 
 app.post('/api/admin/uc', requireAdmin, async (req, res) => {
   try {
     const { uc, usd, tag, glow, sort_order } = req.body;
@@ -226,7 +226,7 @@ app.post('/api/admin/uc', requireAdmin, async (req, res) => {
     res.json(rows[0]);
   } catch (e) { safeError(res, e, 'UC paket qo\'shishda xato'); }
 });
-
+ 
 app.put('/api/admin/uc/:id', requireAdmin, async (req, res) => {
   try {
     const { uc, usd, tag, glow, sort_order } = req.body;
@@ -238,14 +238,14 @@ app.put('/api/admin/uc/:id', requireAdmin, async (req, res) => {
     res.json(rows[0]);
   } catch (e) { safeError(res, e, 'UC paketni yangilashda xato'); }
 });
-
+ 
 app.delete('/api/admin/uc/:id', requireAdmin, async (req, res) => {
   try {
     await pool.query('DELETE FROM uc_packages WHERE id=$1', [req.params.id]);
     res.json({ ok: true });
   } catch (e) { safeError(res, e, 'UC paketni o\'chirishda xato'); }
 });
-
+ 
 // ============================ TOURNAMENTS ============================
 app.get('/api/tournaments', async (req, res) => {
   try {
@@ -253,7 +253,7 @@ app.get('/api/tournaments', async (req, res) => {
     res.json(rows);
   } catch (e) { safeError(res, e, 'Turnirlarni olishda xato'); }
 });
-
+ 
 app.post('/api/admin/tournaments', requireAdmin, async (req, res) => {
   try {
     const t = req.body;
@@ -265,7 +265,7 @@ app.post('/api/admin/tournaments', requireAdmin, async (req, res) => {
     res.json(rows[0]);
   } catch (e) { safeError(res, e, 'Turnir qo\'shishda xato'); }
 });
-
+ 
 app.put('/api/admin/tournaments/:id', requireAdmin, async (req, res) => {
   try {
     const t = req.body;
@@ -278,14 +278,14 @@ app.put('/api/admin/tournaments/:id', requireAdmin, async (req, res) => {
     res.json(rows[0]);
   } catch (e) { safeError(res, e, 'Turnirni yangilashda xato'); }
 });
-
+ 
 app.delete('/api/admin/tournaments/:id', requireAdmin, async (req, res) => {
   try {
     await pool.query('DELETE FROM tournaments WHERE id=$1', [req.params.id]);
     res.json({ ok: true });
   } catch (e) { safeError(res, e, 'Turnirni o\'chirishda xato'); }
 });
-
+ 
 // ============================ GIVEAWAYS ============================
 app.get('/api/giveaways', async (req, res) => {
   try {
@@ -293,7 +293,7 @@ app.get('/api/giveaways', async (req, res) => {
     res.json(rows);
   } catch (e) { safeError(res, e, 'Giveaway\'larni olishda xato'); }
 });
-
+ 
 app.post('/api/admin/giveaways', requireAdmin, async (req, res) => {
   try {
     const g = req.body;
@@ -304,7 +304,7 @@ app.post('/api/admin/giveaways', requireAdmin, async (req, res) => {
     res.json(rows[0]);
   } catch (e) { safeError(res, e, 'Giveaway qo\'shishda xato'); }
 });
-
+ 
 app.put('/api/admin/giveaways/:id', requireAdmin, async (req, res) => {
   try {
     const g = req.body;
@@ -316,14 +316,14 @@ app.put('/api/admin/giveaways/:id', requireAdmin, async (req, res) => {
     res.json(rows[0]);
   } catch (e) { safeError(res, e, 'Giveaway\'ni yangilashda xato'); }
 });
-
+ 
 app.delete('/api/admin/giveaways/:id', requireAdmin, async (req, res) => {
   try {
     await pool.query('DELETE FROM giveaways WHERE id=$1', [req.params.id]);
     res.json({ ok: true });
   } catch (e) { safeError(res, e, 'Giveaway\'ni o\'chirishda xato'); }
 });
-
+ 
 // ============================ WINNERS ============================
 app.get('/api/winners', async (req, res) => {
   try {
@@ -331,7 +331,7 @@ app.get('/api/winners', async (req, res) => {
     res.json(rows);
   } catch (e) { safeError(res, e, 'G\'oliblarni olishda xato'); }
 });
-
+ 
 app.post('/api/admin/winners', requireAdmin, async (req, res) => {
   try {
     const { name, prize, date } = req.body;
@@ -342,14 +342,14 @@ app.post('/api/admin/winners', requireAdmin, async (req, res) => {
     res.json(rows[0]);
   } catch (e) { safeError(res, e, 'G\'olib qo\'shishda xato'); }
 });
-
+ 
 app.delete('/api/admin/winners/:id', requireAdmin, async (req, res) => {
   try {
     await pool.query('DELETE FROM winners WHERE id=$1', [req.params.id]);
     res.json({ ok: true });
   } catch (e) { safeError(res, e, 'G\'olibni o\'chirishda xato'); }
 });
-
+ 
 // ============================ LEADERBOARD ============================
 app.get('/api/leaderboard', async (req, res) => {
   try {
@@ -357,7 +357,7 @@ app.get('/api/leaderboard', async (req, res) => {
     res.json(rows);
   } catch (e) { safeError(res, e, 'Leaderboard\'ni olishda xato'); }
 });
-
+ 
 app.post('/api/admin/leaderboard', requireAdmin, async (req, res) => {
   try {
     const { rank, name, team, points, kills, color } = req.body;
@@ -368,7 +368,7 @@ app.post('/api/admin/leaderboard', requireAdmin, async (req, res) => {
     res.json(rows[0]);
   } catch (e) { safeError(res, e, 'Leaderboard\'ga qo\'shishda xato'); }
 });
-
+ 
 app.put('/api/admin/leaderboard/:id', requireAdmin, async (req, res) => {
   try {
     const { rank, name, team, points, kills, color } = req.body;
@@ -380,14 +380,14 @@ app.put('/api/admin/leaderboard/:id', requireAdmin, async (req, res) => {
     res.json(rows[0]);
   } catch (e) { safeError(res, e, 'Leaderboard\'ni yangilashda xato'); }
 });
-
+ 
 app.delete('/api/admin/leaderboard/:id', requireAdmin, async (req, res) => {
   try {
     await pool.query('DELETE FROM leaderboard WHERE id=$1', [req.params.id]);
     res.json({ ok: true });
   } catch (e) { safeError(res, e, 'Leaderboard yozuvini o\'chirishda xato'); }
 });
-
+ 
 // ============================ MATCHES ============================
 app.get('/api/matches', async (req, res) => {
   try {
@@ -395,7 +395,7 @@ app.get('/api/matches', async (req, res) => {
     res.json(rows);
   } catch (e) { safeError(res, e, 'Jadvalni olishda xato'); }
 });
-
+ 
 app.post('/api/admin/matches', requireAdmin, async (req, res) => {
   try {
     const { date_label, time_label, team1, team2, live, sort_order } = req.body;
@@ -406,7 +406,7 @@ app.post('/api/admin/matches', requireAdmin, async (req, res) => {
     res.json(rows[0]);
   } catch (e) { safeError(res, e, 'O\'yin qo\'shishda xato'); }
 });
-
+ 
 app.put('/api/admin/matches/:id', requireAdmin, async (req, res) => {
   try {
     const { date_label, time_label, team1, team2, live, sort_order } = req.body;
@@ -418,14 +418,14 @@ app.put('/api/admin/matches/:id', requireAdmin, async (req, res) => {
     res.json(rows[0]);
   } catch (e) { safeError(res, e, 'O\'yinni yangilashda xato'); }
 });
-
+ 
 app.delete('/api/admin/matches/:id', requireAdmin, async (req, res) => {
   try {
     await pool.query('DELETE FROM matches WHERE id=$1', [req.params.id]);
     res.json({ ok: true });
   } catch (e) { safeError(res, e, 'O\'yinni o\'chirishda xato'); }
 });
-
+ 
 // ============================ STATS ============================
 app.get('/api/stats', async (req, res) => {
   try {
@@ -435,7 +435,7 @@ app.get('/api/stats', async (req, res) => {
     res.json(obj);
   } catch (e) { safeError(res, e, 'Statistikani olishda xato'); }
 });
-
+ 
 app.put('/api/admin/stats', requireAdmin, async (req, res) => {
   try {
     const updates = req.body;
@@ -449,12 +449,12 @@ app.put('/api/admin/stats', requireAdmin, async (req, res) => {
     res.json({ ok: true });
   } catch (e) { safeError(res, e, 'Statistikani yangilashda xato'); }
 });
-
+ 
 // ============================ HEALTH CHECK ============================
 app.get('/api/health', (req, res) => {
   res.json({ ok: true, time: new Date().toISOString() });
 });
-
+ 
 // ============================ HTML ROUTES ============================
 app.get('/admin', (req, res) => {
   res.sendFile(path.join(PUBLIC_DIR, 'admin.html'), err => {
@@ -464,7 +464,7 @@ app.get('/admin', (req, res) => {
     }
   });
 });
-
+ 
 app.get('/', (req, res) => {
   res.sendFile(path.join(PUBLIC_DIR, 'index.html'), err => {
     if (err) {
@@ -473,7 +473,7 @@ app.get('/', (req, res) => {
     }
   });
 });
-
+ 
 // ============================ 404 — FAQAT NOMA'LUM ROUTE'LAR UCHUN ============================
 // API uchun JSON xato qaytaradi, qolganlari uchun index.html (SPA fallback)
 app.use((req, res) => {
@@ -484,13 +484,13 @@ app.use((req, res) => {
     if (err) res.status(404).send('Sahifa topilmadi');
   });
 });
-
+ 
 // ============================ GLOBAL XATO HANDLER ============================
 app.use((err, req, res, next) => {
   console.error('Global xato:', err);
   res.status(500).json({ error: 'Server xatosi' });
 });
-
+ 
 // ============================ START ============================
 initDb()
   .then(() => {
@@ -504,10 +504,13 @@ initDb()
     console.error('Database init xato:', err);
     process.exit(1);
   });
-
+ 
 // Graceful shutdown
 process.on('SIGTERM', async () => {
   console.log('SIGTERM qabul qilindi, server to\'xtatilmoqda...');
   await pool.end();
   process.exit(0);
 });
+  console.log('SIGTERM qabul qilindi, server to\'xtatilmoqda...');
+  await pool.end();
+  process.exit(0);
