@@ -14,7 +14,11 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
 
 app.use(cors());
 app.use(express.json({ limit: '2mb' }));
-app.use(express.static(path.join(__dirname, 'public')));
+
+// Static files - public papkasi
+const PUBLIC_DIR = path.join(__dirname, 'public');
+console.log('Public directory:', PUBLIC_DIR);
+app.use(express.static(PUBLIC_DIR));
 
 // ============================ AUTH MIDDLEWARE ============================
 function requireAdmin(req, res, next) {
@@ -373,11 +377,34 @@ app.put('/api/admin/stats', requireAdmin, async (req, res) => {
 
 // ============================ ROUTES ============================
 app.get('/admin', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+  const adminPath = path.join(PUBLIC_DIR, 'admin.html');
+  res.sendFile(adminPath, (err) => {
+    if (err) {
+      console.error('admin.html xato:', err.message);
+      res.status(500).send('admin.html topilmadi. Public papka: ' + PUBLIC_DIR);
+    }
+  });
 });
 
+app.get('/', (req, res) => {
+  const indexPath = path.join(PUBLIC_DIR, 'index.html');
+  res.sendFile(indexPath, (err) => {
+    if (err) {
+      console.error('index.html xato:', err.message);
+      res.status(500).send('index.html topilmadi. Public papka: ' + PUBLIC_DIR);
+    }
+  });
+});
+
+// Boshqa barcha route'lar — agar fayl topilmasa, index.html'ga qaytar
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  const indexPath = path.join(PUBLIC_DIR, 'index.html');
+  res.sendFile(indexPath, (err) => {
+    if (err) {
+      console.error('index.html xato:', err.message);
+      res.status(404).send('Sahifa topilmadi');
+    }
+  });
 });
 
 // ============================ START ============================
